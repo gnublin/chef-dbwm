@@ -1,0 +1,5 @@
+config.yml
+node_modul*
+public*
+brunch*
+*.log

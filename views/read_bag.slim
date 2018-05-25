@@ -1,0 +1,12 @@
+html
+  head
+    title MDB
+  body
+    -if @error_type
+      p =@error_type
+    -else
+      p ="Encrypted: #{@encrypted}"
+      -@plain_data.each do |item_name, item_data|
+        ="#{item_name}: #{item_data}"
+        br
+    p: a href="/" Back

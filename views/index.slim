@@ -1,0 +1,11 @@
+doctype html
+html
+  head
+    title Chef-dbwm
+  body
+    -@data_bags.each do |bag_name, data_item|
+      -data_item.sort.each do |item|
+        -if item[1] == 'dir'
+          p: a href="/?path=#{bag_name}/#{item[0]}"=item[0]
+        -else
+          p: a href="/read_databag?bag_file=#{bag_name}/#{item[0]}"=item[0]
