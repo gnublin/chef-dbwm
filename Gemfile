@@ -9,13 +9,12 @@ gem 'sinatra', '~> 2.0.1', require: 'sinatra/base'
 gem 'sinatra-contrib'
 gem 'slim'
 
-
 group :development do
+  gem 'better_errors'
+  gem 'binding_of_caller'
   gem 'pry'
   gem 'pry-byebug'
   gem 'rerun', require: false
-  gem 'better_errors'
-  gem 'binding_of_caller'
 end
 
 group :test do

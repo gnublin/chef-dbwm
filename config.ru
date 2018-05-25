@@ -62,7 +62,7 @@ get '/read_databag' do
       begin
         @plain_data = Chef::EncryptedDataBagItem.new(encrypted_data, secret).to_hash
         error = 0
-      rescue
+      rescue StandardError
         error = 1
       end
       break if error == 0
