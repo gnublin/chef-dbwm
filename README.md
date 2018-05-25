@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/gnublin/chef-dbwm.svg?branch=master)](https://travis-ci.org/gnublin/chef-dbwm)
+
 # Chef-dbwm
 Chef DataBags Web Manager
 
