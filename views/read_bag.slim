@@ -1,12 +1,7 @@
-html
-  head
-    title MDB
-  body
-    -if @error_type
-      p =@error_type
-    -else
-      p ="Encrypted: #{@encrypted}"
-      -@plain_data.each do |item_name, item_data|
-        ="#{item_name}: #{item_data}"
-        br
-    p: a href="/" Back
+i.uk-margin-small-right uk-icon="icon: check"
+p ="Encrypted: #{@encrypted}"
+-@plain_data.each do |item_name, item_data|
+  ="#{item_name}: #{item_data}"
+  br
+p: a href="/?path=#{File.split(params[:bag_file])[0]}" Back
+p: a href="/edit?bag_file=#{params[:bag_file]}" Edit

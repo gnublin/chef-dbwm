@@ -1,0 +1,7 @@
+{
+    "name": "chef-dbwm",
+    "private": true,
+    "dependencies": {
+        "uikit": "3.0.0-rc.4"
+    }
+}

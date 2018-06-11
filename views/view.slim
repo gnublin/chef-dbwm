@@ -1,0 +1,8 @@
+-@data_bags.each do |bag_name, data_item|
+  P= "#{bag_name}"
+  ul.uk-iconnav.uk-iconnav-vertical
+    -data_item.sort.each do |item|
+      -if item[1] == 'dir'
+        li: a.far.fa-folder href="?path=#{bag_name}/#{item[0]}"= " #{item[0]}"
+      -else
+        li: a.far.fa-file href="/edit?bag_file=#{bag_name}/#{item[0]}"= " #{item[0]}"
