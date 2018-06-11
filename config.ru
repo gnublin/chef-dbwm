@@ -119,9 +119,9 @@ end
 
 post '/edit' do
   file_params = {}
-  params.select { |param| param.match(/#{params['__id']}/) }.map { |param, val|
+  params.select { |param| param.match(/#{params['__id']}/) }.map do |param, val|
     file_params[param.gsub(/#{params['__id']}_/, '')] = val
-  }
+  end
   p file_params.to_json
   if params['encrypted']
     secret = Chef::EncryptedDataBagItem.load_secret(params['secret_key'])
