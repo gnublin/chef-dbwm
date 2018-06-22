@@ -1,4 +1,6 @@
+
 -@data_bags.each do |bag_name, data_item|
+  a.button.uk-button.uk-button-default.uk-background-muted href="create?bag_path=#{bag_name}" Create
   P= "#{bag_name}"
   ul.uk-iconnav.uk-iconnav-vertical
     -data_item.sort.each do |item|

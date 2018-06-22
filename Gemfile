@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'activesupport', require: 'active_support/all'
 gem 'chef'
+gem 'hashdiff'
 
 gem 'rspec', require: false
 gem 'rubocop', '0.50.0'

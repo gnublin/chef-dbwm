@@ -5,6 +5,8 @@ html
     link href="/uikit/dist/css/uikit.min.css" rel='stylesheet' type='text/css'
     link href="/css/fontawesome-all.css" rel='stylesheet' type='text/css'
   body
+    -if @error_type
+      p =@error_type
     nav.uk-navbar.uk-navbar-container.uk-margin-bottom uk-navbar=""
       a.uk-navbar-item.uk-logo.uk-margin-large-right href='/' Home
       .uk-navbar-left

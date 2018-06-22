@@ -1,0 +1,33 @@
+form action='/create' method='POST'
+  .uk-sticky style='z-index: 980;' uk-sticky='bottom: #top'
+    p.uk-margin
+        a.uk-button.uk-button-default.uk-background-muted href="/view?path=#{params['bag_path']}" Back
+        input.button.uk-button.uk-button-default.uk-background-muted type='submit' value='Create'
+  br
+  input type='hidden' name='bag_path' value="#{params[:bag_path]}"
+  input type='hidden' name='__id' value='new'
+  input type="hidden" name='secret_key' value="#{@secret_file_used}"
+  .uk-margin
+    ="Encrypted? Select key or raw: "
+    . uk-form-custom="target: > * > span:first-child"
+      select# name="encrypted"
+        option value="raw" raw
+        - @all_keys.each do |name, path|
+          option value="#{path['path']}"= name
+      button class="uk-button uk-button-default" type="button" tabindex="-1"
+        span
+        span uk-icon="icon: chevron-down"
+  .uk-margin
+    label
+      ="filename (without extension .json): "
+      input type='text' name='file_name'
+  .uk-margin
+    label
+      ="content: "
+      textarea.uk-textarea.uk-form-small.uk-height-large name='content' id="form-stacked-text" placeholder="{
+        "id": "is_required",
+        "format": "should be json valid",
+        "this is" "an example"
+      }
+      "
+  br

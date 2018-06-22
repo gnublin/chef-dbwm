@@ -1,27 +1,27 @@
--if @error_type
-  p =@error_type
--else
-
-  form action="/edit" method="POST"
-    -params['disable'] == 'false' ? param_disable = false : param_disable = true
-    div class="tm-sidebar-left uk-visible@l" style="marin-top:-200px"
-      div.uk-sticky.uk-active.uk-sticky-fixed uk-sticky="offset: 160" style="position: fixed; margin-top:200px"
-        div.uk-background-primary.uk-nav.uk-nav-default.tm-nav.uk-nav-parent-icon uk-scrollspy-nav="closest: li; scroll: true; offset: 100"
-          input.button.uk-button.uk-button-default type="submit" value="Save" disabled=param_disable
-          a.uk-button.uk-button-default href="/edit?bag_file=#{params[:bag_file]}&disable=#{param_disable ? false : true}" = param_disable ? 'edit' : 'view'
-          a.uk-button.uk-button-default href="/view?path=#{File.split(params[:bag_file])[0]}" Back
-    div
-      div style="top:160px" = params[:bag_file]
-      input type="hidden" name="encrypted" value="#{@encrypted}"
-      input type="hidden" name="bag_file" value="#{params[:bag_file]}"
-      input type="hidden" name="__id" value="#{@plain_data['id']}"
-      input type="hidden" name="secret_key" value="#{@secret_file_used}"
-      br
-      -@plain_data.keys.sort_by(&:downcase).each do |item_name|
-        -item_data = @plain_data[item_name]
-        = "#{item_name}: "
-        -if item_data.to_s.length > 200
-          textarea.uk-textarea.uk-form-small.uk-height-large name="#{@plain_data['id']}_#{item_name}" disabled=param_disable = "#{item_data}"
-        -else
-          input.uk-input.uk-form-small name="#{@plain_data['id']}_#{item_name}" value="#{item_data}" disabled=param_disable
-        br
+.uk-alert.uk-alert-primary
+    p= "Default edition format is #{@format}"
+form action="/edit" method="POST"
+  -params['disable'] == 'false' ? param_disable = false : param_disable = true
+  .uk-sticky style="z-index: 980;" uk-sticky="bottom: #top"
+    p.uk-margin
+        input.button.uk-button.uk-button-default.uk-background-muted type="submit" value="Save" disabled=param_disable
+        a.button.uk-button.uk-button-default.uk-background-muted href="/edit?bag_file=#{params[:bag_file]}&disable=#{param_disable ? false : true}" = param_disable ? 'edit' : 'view'
+        a.uk-button.uk-button-default.uk-background-muted href="/delete?path=bag_file=#{params[:bag_file]}" Delete
+        a.uk-button.uk-button-default.uk-background-muted href="/view?path=#{File.split(params[:bag_file])[0]}" Back
+  input type="hidden" name="encrypted" value="#{@encrypted}"
+  input type="hidden" name="format" value="#{@format}"
+  input type="hidden" name="bag_file" value="#{params[:bag_file]}"
+  input type="hidden" name="__id" value="#{@plain_data['id']}"
+  input type="hidden" name="secret_key" value="#{@secret_file_used}"
+  br
+  - if @format == 'json'
+    ="Content:"
+    textarea.uk-textarea.uk-form-small.uk-height-large name="content" disabled=param_disable = "#{JSON.pretty_generate(@plain_data)}"
+  - else
+    -@plain_data.keys.sort_by(&:downcase).each do |item_name|
+      -item_data = @plain_data[item_name]
+      = "#{item_name}: "
+      -if item_data.to_s.length > 200
+        textarea.uk-textarea.uk-form-small.uk-height-large name="#{@plain_data['id']}_#{item_name}" disabled=param_disable = "#{item_data}"
+      -else
+        input.uk-input.uk-form-small name="#{@plain_data['id']}_#{item_name}" value="#{item_data}" disabled=param_disable

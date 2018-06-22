@@ -6,6 +6,8 @@ require 'tempfile'
 require 'slim'
 
 require 'sinatra/config_file'
+require 'pry'
+require 'hashdiff'
 
 config_file 'config.yml'
 
@@ -36,10 +38,6 @@ end
 # run Mdb
 before do
   @data_bag_dir = MDB_CONFIG['data_bags_path']
-end
-
-get '/' do
-  slim :index
 end
 
 get '/view' do
@@ -92,15 +90,18 @@ get '/read_databag' do
 end
 
 get '/edit' do
+  secret_keys = MDB_CONFIG['secret_keys_path'].map { |_, secret| secret['path'] }
+  @format = 'form'
   encrypted_file = params[:bag_file]
-  encrypted_data = JSON.parse(File.read(encrypted_file))
+  read_file = File.read(encrypted_file)
+  encrypted_data = JSON.parse(read_file)
   bag_status = CheckEncryptedTester.new
   @plain_data = encrypted_data
   @encrypted = bag_status.encrypted?(encrypted_data)
   error = 0
   @secret_file_used = ''
   if @encrypted
-    MDB_CONFIG['secret_keys_path'].each do |secret_file|
+    secret_keys.each do |secret_file|
       next unless File.exist?(secret_file)
       secret = Chef::EncryptedDataBagItem.load_secret(secret_file)
       begin
@@ -113,24 +114,65 @@ get '/edit' do
       break if error == 0
     end
   end
+  type = @plain_data.map { |_, val| val.class }
+  @format = 'json' if type.include? Hash
   @error_type = "Private key not found to read encrypted databag #{encrypted_file}" if error == 1
   slim :edit_bag
 end
 
 post '/edit' do
-  file_params = {}
-  params.select { |param| param.match(/#{params['__id']}/) }.map do |param, val|
-    file_params[param.gsub(/#{params['__id']}_/, '')] = val
+  bag_new_data = {}
+  if params['format'] == 'json'
+    bag_new_data = JSON.parse(params['content'])
+  else
+    params.select { |param| param.match(/#{params['__id']}/) }.map do |param, val|
+      bag_new_data[param.gsub(/#{params['__id']}_/, '')] = val
+    end
   end
-  p file_params.to_json
-  if params['encrypted']
+  bag_file = params['bag_file']
+  bag_origin_data = JSON.parse(File.read(bag_file))
+
+  if params['encrypted'] == 'true'
     secret = Chef::EncryptedDataBagItem.load_secret(params['secret_key'])
-    file_params = Chef::EncryptedDataBagItem.encrypt_data_bag_item(file_params, secret)
+    bag_origin_data = Chef::EncryptedDataBagItem.new(bag_origin_data, secret).to_hash
+  end
+  diff_get = HashDiff.diff(bag_origin_data, bag_new_data)
+  diff_patch = HashDiff.patch!({}, diff_get)
+
+  if params['encrypted'] == 'true'
+    secret = Chef::EncryptedDataBagItem.load_secret(params['secret_key'])
+    bag_new_data = Chef::EncryptedDataBagItem.encrypt_data_bag_item(diff_patch, secret)
   end
 
-  encrypted_file = params['bag_file']
-  File.open(encrypted_file, 'w')
-  File.write encrypted_file, JSON.pretty_generate(file_params)
+  bag_new_data = bag_origin_data.merge(bag_new_data)
+  File.open(bag_file, 'w')
+  File.write bag_file, "#{JSON.pretty_generate(bag_new_data)}\n"
 
   redirect "/edit?bag_file=#{params['bag_file']}"
+end
+
+get '/create' do
+  @all_keys = MDB_CONFIG['secret_keys_path']
+  slim :create_bag
+end
+
+post '/create' do
+  p params
+  bag_file = "#{params['bag_path']}/#{params['file_name']}.json"
+  data = JSON.parse(params['content'])
+  unless params['encrypted'] == 'raw'
+    secret = Chef::EncryptedDataBagItem.load_secret(params['encrypted'])
+    data = Chef::EncryptedDataBagItem.encrypt_data_bag_item(data, secret)
+  end
+  File.open(bag_file, 'w')
+  File.write bag_file, "#{JSON.pretty_generate(data)}\n"
+
+  redirect "/edit?bag_file=#{bag_file}"
+end
+
+get 'delete' do
+end
+
+get '/*' do
+  slim :index
 end
