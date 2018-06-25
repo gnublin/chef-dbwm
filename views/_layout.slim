@@ -5,8 +5,6 @@ html
     link href="/uikit/dist/css/uikit.min.css" rel='stylesheet' type='text/css'
     link href="/css/fontawesome-all.css" rel='stylesheet' type='text/css'
   body
-    -if @error_type
-      p =@error_type
     nav.uk-navbar.uk-navbar-container.uk-margin-bottom uk-navbar=""
       a.uk-navbar-item.uk-logo.uk-margin-large-right href='/' Home
       .uk-navbar-left
@@ -18,9 +16,15 @@ html
                 - @data_bag_dir.each do |dir|
                   li: a href="http://localhost:8080/view?path=#{dir['path']}"= dir['name']
     div.uk-container.uk-container-small.uk-position-relative
-      -if @error_type
-        p =@error_type
-      -else
-        == yield
+      - if @message
+        - if @message[:type] == 'error'
+          .uk-alert-danger = @message[:msg]
+        - elsif @message[:type] == 'warning'
+          .uk-alert-warning = @message[:msg]
+        - elsif @message[:type] == 'success'
+          .uk-alert-success = @message[:msg]
+        - else
+          .uk-alert-primary = @message[:msg]
+      == yield
     script src="/uikit/dist/js/uikit.min.js" type="text/javascript"
     script src="/uikit/dist/js/uikit-icons.min.js" type="text/javascript"

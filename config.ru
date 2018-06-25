@@ -24,6 +24,8 @@ MDB_CONFIG = settings.mdb_config
 puts MDB_CONFIG
 use Rack::Logger
 
+enable :sessions
+
 helpers do
   def logger
     request.logger
@@ -34,10 +36,10 @@ Bundler.require
 class CheckEncryptedTester
   include Chef::EncryptedDataBagItem::CheckEncrypted
 end
-
 # run Mdb
 before do
   @data_bag_dir = MDB_CONFIG['data_bags_path']
+  @message = session.delete(:message)
 end
 
 get '/view' do
@@ -63,30 +65,6 @@ get '/view' do
     @error_message = 'Please specify a good databag'
   end
   slim :view
-end
-
-get '/read_databag' do
-  encrypted_file = params[:bag_file]
-  encrypted_data = JSON.parse(File.read(encrypted_file))
-  bag_status = CheckEncryptedTester.new
-  @plain_data = encrypted_data
-  @encrypted = bag_status.encrypted?(encrypted_data)
-  error = 0
-  if @encrypted
-    MDB_CONFIG['secret_keys_path'].each do |secret_file|
-      next unless File.exist?(secret_file)
-      secret = Chef::EncryptedDataBagItem.load_secret(secret_file)
-      begin
-        @plain_data = Chef::EncryptedDataBagItem.new(encrypted_data, secret).to_hash
-        error = 0
-      rescue StandardError
-        error = 1
-      end
-      break if error == 0
-    end
-  end
-  @error_type = "Private key not found to read encrypted databag #{encrypted_file}" if error == 1
-  slim :read_bag
 end
 
 get '/edit' do
@@ -115,7 +93,8 @@ get '/edit' do
     end
   end
   type = @plain_data.map { |_, val| val.class }
-  @format = 'json' if type.include? Hash
+  msg = type.include?(Hash) ? 'json' : 'form'
+  @message = {type: 'info', msg: "Default edition format is #{msg}" } if @message.nil?
   @error_type = "Private key not found to read encrypted databag #{encrypted_file}" if error == 1
   slim :edit_bag
 end
@@ -157,7 +136,6 @@ get '/create' do
 end
 
 post '/create' do
-  p params
   bag_file = "#{params['bag_path']}/#{params['file_name']}.json"
   data = JSON.parse(params['content'])
   unless params['encrypted'] == 'raw'
@@ -166,11 +144,22 @@ post '/create' do
   end
   File.open(bag_file, 'w')
   File.write bag_file, "#{JSON.pretty_generate(data)}\n"
-
+  session[:message] = {type: 'success', msg: "#{params['file_name']}.json has been created successfully" }
   redirect "/edit?bag_file=#{bag_file}"
 end
 
-get 'delete' do
+get '/delete' do
+  file_path, file_name = File.split(params[:bag_file])
+  begin
+    File.delete(params['bag_file'])
+    msg = "#{file_name} has been delete."
+    type = 'success'
+  rescue StandardError
+    msg = "An error occured to delete #{file_name}"
+    type = 'error'
+  end
+  session[:message] = {type: type, msg: msg}
+  redirect "/view?path=#{file_path}"
 end
 
 get '/*' do

@@ -1,12 +1,10 @@
-.uk-alert.uk-alert-primary
-    p= "Default edition format is #{@format}"
 form action="/edit" method="POST"
   -params['disable'] == 'false' ? param_disable = false : param_disable = true
   .uk-sticky style="z-index: 980;" uk-sticky="bottom: #top"
     p.uk-margin
         input.button.uk-button.uk-button-default.uk-background-muted type="submit" value="Save" disabled=param_disable
         a.button.uk-button.uk-button-default.uk-background-muted href="/edit?bag_file=#{params[:bag_file]}&disable=#{param_disable ? false : true}" = param_disable ? 'edit' : 'view'
-        a.uk-button.uk-button-default.uk-background-muted href="/delete?path=bag_file=#{params[:bag_file]}" Delete
+        a.uk-button.uk-button-default.uk-background-muted uk-toggle="target: #modal-delete" Delete
         a.uk-button.uk-button-default.uk-background-muted href="/view?path=#{File.split(params[:bag_file])[0]}" Back
   input type="hidden" name="encrypted" value="#{@encrypted}"
   input type="hidden" name="format" value="#{@format}"
@@ -25,3 +23,10 @@ form action="/edit" method="POST"
         textarea.uk-textarea.uk-form-small.uk-height-large name="#{@plain_data['id']}_#{item_name}" disabled=param_disable = "#{item_data}"
       -else
         input.uk-input.uk-form-small name="#{@plain_data['id']}_#{item_name}" value="#{item_data}" disabled=param_disable
+
+
+.uk-modal id="modal-delete" uk-modal=""
+    .uk-modal-dialog.uk-modal-body
+        h2.uk-modal-title = "Are you sure?"
+        button.uk-button.uk-button-default.uk-modal-close type="button" Cancel
+        a.uk-button.uk-button-danger type="button" href="/delete?bag_file=#{params[:bag_file]}" Delete
