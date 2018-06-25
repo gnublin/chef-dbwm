@@ -2,6 +2,7 @@
     "name": "chef-dbwm",
     "private": true,
     "dependencies": {
+        "@fortawesome/fontawesome-free": "*",
         "uikit": "3.0.0-rc.4"
     }
 }
