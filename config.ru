@@ -94,6 +94,8 @@ get '/edit' do
   end
   type = @plain_data.map { |_, val| val.class }
   msg = type.include?(Hash) ? 'json' : 'form'
+  msg = 'json' if @plain_data.empty?
+  @format = msg
   @message = {type: 'info', msg: "Default edition format is #{msg}" } if @message.nil?
   @error_type = "Private key not found to read encrypted databag #{encrypted_file}" if error == 1
   slim :edit_bag
