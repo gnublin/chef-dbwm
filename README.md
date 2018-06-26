@@ -1,7 +1,10 @@
 [![Build Status](https://travis-ci.org/gnublin/chef-dbwm.svg?branch=master)](https://travis-ci.org/gnublin/chef-dbwm)
 
 # Chef-dbwm
-Chef DataBags Web Manager
+Chef DataBags Web Manager is an application to manage your databag files.
+This app support the encrypted or not databags in json format.
+
+You can run this app on your chef server or locally on your computer.
 
 ## Requirement
  * bundler
