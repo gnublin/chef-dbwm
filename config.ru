@@ -11,10 +11,6 @@ require 'hashdiff'
 
 config_file 'config.yml'
 
-# TODO: make node_modules in subfolder to co-work with font awesome (see if font awesome npm possible)
-# TODO: edit_bag for view
-# TODO: Make disable form by JS
-
 set :root, File.dirname(__FILE__)
 set :port, 8080
 set :slim, layout: :_layout
