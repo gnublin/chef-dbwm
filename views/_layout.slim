@@ -1,9 +1,11 @@
+// MIT License
+// Copyright (c) 2018 Gauthier FRANÇOIS
+
 doctype html
 html
   head
     title Chef-dbwm
     link href="/uikit/dist/css/uikit.min.css" rel='stylesheet' type='text/css'
-    link href="font-awesome/css/font-awesome.css" rel='stylesheet' type='text/css'
     link href="@fortawesome/fontawesome-free/css/all.css" rel='stylesheet' type='text/css'
   body
     nav.uk-navbar.uk-navbar-container.uk-margin-bottom uk-navbar=""
@@ -15,7 +17,7 @@ html
             .uk-navbar-dropdown
               ul.uk-nav.uk-navbar-dropdown-nav
                 - @data_bag_dir.each do |dir|
-                  li: a href="http://localhost:8080/view?path=#{dir['path']}"= dir['name']
+                  li: a href="/view?path=#{dir['path']}"= dir['name']
     div.uk-container.uk-container-small.uk-position-relative
       - if @message
         - if @message[:type] == 'error'
