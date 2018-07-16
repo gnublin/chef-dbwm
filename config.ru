@@ -1,5 +1,5 @@
 # MIT License
-# Copyright (c) 2018 Gauthier FRANÇOIS
+# Copyright (c) 2018 Gauthier FRANCOIS
 
 require 'bundler/setup'
 Bundler.require :default, :development
