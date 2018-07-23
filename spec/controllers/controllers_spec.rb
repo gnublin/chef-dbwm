@@ -29,7 +29,8 @@ describe ChefDBWM do
   end
 
   describe 'View/Edit' do
-    file = 'tests/data_bags/test2.json'
+    file_enc = 'tests/data_bags/test2.json'
+    file_raw = 'tests/data_bags/test1.json'
     describe '::View' do
       before { get '/view', **params }
       describe '::with parameters' do
@@ -44,19 +45,19 @@ describe ChefDBWM do
     describe '::Edit' do
       before { get '/edit', **params }
       describe '::view' do
-        let(:params) { {bag_file: file} }
+        let(:params) { {bag_file: file_enc} }
         it('returns 200 OK') { expect(last_response).to be_ok }
         it('contain "EDIT"') { expect(last_response.body).to include('>edit<') }
         it('Submit button is disabled') { expect(last_response.body).to include('disabled') }
       end
       describe '::edit' do
-        let(:params) { {bag_file: file, disable: false} }
+        let(:params) { {bag_file: file_enc, disable: false} }
         it('returns 200 OK') { expect(last_response).to be_ok }
         it('not contain "EDIT"') { expect(last_response.body).not_to include('>edit<') }
         it('Submit button is enabled') { expect(last_response.body).not_to include('disabled') }
       end
       describe '::update' do
-        let(:params) { {bag_file: file, disable: false} }
+        let(:params) { {bag_file: file_enc, disable: false} }
         it('returns 200 OK') { expect(last_response).to be_ok }
         it('not contain "EDIT"') { expect(last_response.body).not_to include('>edit<') }
         it('Submit button is enabled') { expect(last_response.body).not_to include('disabled') }
@@ -65,22 +66,47 @@ describe ChefDBWM do
     describe '::Update' do
       before { post '/edit', **params }
       describe '::Encrypted' do
-        let(:params) { {
-          bag_file: file,
-          content: '{
-            "id": "test2",
-            "color": "pink",
-            "number": 42,
-          }',
-          format: 'json',
-          file_name: 'test3',
-          encrypted: true,
-          secret_key: 'tests/secret_key'
-          } }
+        let(:params) do
+          {
+            bag_file: file_enc,
+            content: '{
+              "id": "test2",
+              "color": "pink",
+              "number": 42
+            }',
+            format: 'json',
+            file_name: 'test3',
+            encrypted: true,
+            secret_key: 'tests/secret_key'
+          }
+        end
         it('returns redirect') { expect(last_response).to be_redirect }
-        it('file test2.json new encrypted color hash') { expect(File.read(file)).not_to include('1YpGaun1pfKbEScUt7HYtLGIa8ZW7Q') }
-        it('file test2.json no modify encrypted number') { expect(File.read(file)).to include('o+aI9uVaNUfiH7EWW335Hdkz') }
-        it('file test2.json contain id') { expect(File.read(file)).to include('"id": "test2"') }
+        it('file test2.json new encrypted color hash') do
+          expect(File.read(file_enc)).not_to include('RjGUHZIoIUr4qoDsIyx8g4nagspfgw==')
+        end
+        it('file test2.json no modify encrypted number') do
+          expect(File.read(file_enc)).to include('/oDVL+22UMbRBygxGpFdiAcCaQ==')
+        end
+        it('file test2.json contain id') { expect(File.read(file_enc)).to include('"id": "test2"') }
+      end
+      describe '::Raw' do
+        let(:params) do
+          {
+            bag_file: file_raw,
+            content: '{
+              "id": "test1",
+              "color": "pink",
+              "number": 73
+            }',
+            format: 'json',
+            file_name: 'test1',
+            encrypted: false,
+          }
+        end
+        it('returns redirect') { expect(last_response).to be_redirect }
+        it('file test1.json new encrypted color') { expect(File.read(file_raw)).not_to include('black') }
+        it('file test1.json no modify number') { expect(File.read(file_raw)).to include('73') }
+        it('file test1.json contain id') { expect(File.read(file_raw)).to include('"id": "test1"') }
       end
     end
   end
@@ -90,14 +116,14 @@ describe ChefDBWM do
 
     describe '::create' do
       before { post '/create', **params }
-      let(:params) {
+      let(:params) do
         {
           bag_path: 'tests/data_bags',
           file_name: 'test3',
           encrypted: 'tests/secret_key',
           content: DATA_BAG,
         }
-      }
+      end
       it('returns redirect') { expect(last_response).to be_redirect }
       it('create a test3.json file') { expect(File).to exist(file) }
       it('file test3.json contain id') { expect(File.read(file)).to include('"id": "test') }
@@ -108,11 +134,11 @@ describe ChefDBWM do
 
     describe '::delete' do
       before { get '/delete', **params }
-      let(:params) {
+      let(:params) do
         {
           bag_file: 'tests/data_bags/test3.json',
         }
-      }
+      end
       it('returns redirect') { expect(last_response).to be_redirect }
       it('test3.json has been deleted') { expect(File).not_to exist(file) }
     end

@@ -104,6 +104,7 @@ class ChefDBWM < Sinatra::Application
 
   post '/edit' do
     bag_new_data = {}
+
     if params['format'] == 'json'
       bag_new_data = JSON.parse(params['content'])
     else
@@ -114,11 +115,14 @@ class ChefDBWM < Sinatra::Application
     bag_file = params['bag_file']
     bag_origin_data = JSON.parse(File.read(bag_file))
 
+    diff_get = HashDiff.diff(bag_origin_data, bag_new_data)
+
     if params['encrypted'] == 'true'
       secret = Chef::EncryptedDataBagItem.load_secret(params['secret_key'])
-      bag_origin_data = Chef::EncryptedDataBagItem.new(bag_origin_data, secret).to_hash
+      bag_origin_data_enc = Chef::EncryptedDataBagItem.new(bag_origin_data, secret).to_hash
+      diff_get = HashDiff.diff(bag_origin_data_enc, bag_new_data)
     end
-    diff_get = HashDiff.diff(bag_origin_data, bag_new_data)
+
     diff_patch = HashDiff.patch!({}, diff_get)
 
     if params['encrypted'] == 'true'
