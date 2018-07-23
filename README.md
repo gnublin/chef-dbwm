@@ -60,7 +60,7 @@ bundle exec rackup -p 8080
 
 ## License and Author
 
-Author: Gauthier FRANÇOIS (<gauthier@openux.org>)
+Author: Gauthier FRANCOIS (<gauthier@openux.org>)
 
 ```text
 GNU General Public License v3.0

@@ -1,0 +1,17 @@
+{
+  "id": "test2",
+  "color": {
+    "encrypted_data": "1YpGaun1pfKbEScUt7HYtLGIa8ZW7Q==\n",
+    "iv": "C96Hlg6lEvNWGZDq\n",
+    "auth_tag": "w4knSL0Aqj5d3mJ/LxYkfg==\n",
+    "version": 3,
+    "cipher": "aes-256-gcm"
+  },
+  "number": {
+    "encrypted_data": "o+aI9uVaNUfiH7EWW335Hdkz/A==\n",
+    "iv": "n03vYoQLYc3jJPZV\n",
+    "auth_tag": "guanZ1dI4KLJLk7lZB94fw==\n",
+    "version": 3,
+    "cipher": "aes-256-gcm"
+  }
+}

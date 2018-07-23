@@ -15,12 +15,11 @@ require 'hashdiff'
 
 class ChefDBWM < Sinatra::Application
   register Sinatra::ConfigFile
-
   set :root, File.dirname(__FILE__) + '/..'
   set :slim, layout: :_layout
   set :public_folder, 'node_modules'
 
-  config_file 'config.yml'
+  config_file "config/#{ENV['RACK_ENV']}/config.yml"
   MDB_CONFIG = settings.mdb_config
 
   use Rack::Logger
@@ -45,7 +44,6 @@ class ChefDBWM < Sinatra::Application
   end
 
   get '/view' do
-    p @data_bag_dir
     bags_dir = {}
 
     if params[:path]
