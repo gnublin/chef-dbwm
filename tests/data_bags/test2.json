@@ -1,9 +1,9 @@
 {
   "id": "test2",
   "color": {
-    "encrypted_data": "1YpGaun1pfKbEScUt7HYtLGIa8ZW7Q==\n",
-    "iv": "C96Hlg6lEvNWGZDq\n",
-    "auth_tag": "w4knSL0Aqj5d3mJ/LxYkfg==\n",
+    "encrypted_data": "OHJkTDIeRMZCGkY/osHxhxzozu+kh9M=\n",
+    "iv": "gVtpQ2T9s10fTGqE\n",
+    "auth_tag": "geSJZa1FAgLfQh8lECQSJw==\n",
     "version": 3,
     "cipher": "aes-256-gcm"
   },
