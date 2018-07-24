@@ -6,6 +6,7 @@ require 'time'
 require 'json'
 require 'chef_dbwm'
 require 'rack/test'
+require 'rspec'
 
 DATA_BAG = '
 {
@@ -85,7 +86,7 @@ describe ChefDBWM do
           expect(File.read(file_enc)).not_to include('RjGUHZIoIUr4qoDsIyx8g4nagspfgw==')
         end
         it('file test2.json no modify encrypted number') do
-          expect(File.read(file_enc)).to include('/oDVL+22UMbRBygxGpFdiAcCaQ==')
+          expect(File.read(file_enc)).to include('o+aI9uVaNUfiH7EWW335Hdkz/A==')
         end
         it('file test2.json contain id') { expect(File.read(file_enc)).to include('"id": "test2"') }
       end
