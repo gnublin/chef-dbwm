@@ -49,9 +49,9 @@ class ChefDBWM < Sinatra::Application
     if params[:path]
       real_path = File.realpath(params[:path])
       check_path = @data_bag_dir.map { |databag| real_path.match?(File.realpath(databag['path'])) }
-      base_path = real_path if check_path.include? true
 
-      base_path = File.realpath(base_path)
+      base_path = File.realpath(real_path)
+      p base_path
       bags_dir[base_path] = {}
       root_dir = @data_bag_dir.map { |databag| base_path == File.realpath(databag['path']) }
       Dir.entries("#{base_path}/").each do |item|
@@ -64,6 +64,13 @@ class ChefDBWM < Sinatra::Application
       @data_bags = bags_dir
     else
       @error_message = 'Please specify a good databag'
+    end
+    if check_path.include? false
+      @message = {
+        type: 'warning',
+        msg: "Path #{params[:path]} not permit.Please check your permission or your configuration file.",
+      }
+      redirect '/'
     end
     slim :view
   end
