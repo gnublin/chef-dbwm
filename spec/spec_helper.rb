@@ -14,4 +14,3 @@ RSpec::Matchers.define :is_json do |file_name|
   file = JSON.parse(File.read(file_name))
   p file
 end
-
