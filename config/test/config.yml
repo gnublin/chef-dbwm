@@ -1,0 +1,7 @@
+mdb_config:
+  secret_keys_path:
+    main:
+      path: tests/secret_key
+  data_bags_path:
+    - name: main
+      path: tests/data_bags
