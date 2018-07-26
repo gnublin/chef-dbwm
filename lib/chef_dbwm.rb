@@ -51,7 +51,6 @@ class ChefDBWM < Sinatra::Application
       check_path = @data_bag_dir.map { |databag| real_path.match?(File.realpath(databag['path'])) }
 
       base_path = File.realpath(real_path)
-      p base_path
       bags_dir[base_path] = {}
       root_dir = @data_bag_dir.map { |databag| base_path == File.realpath(databag['path']) }
       Dir.entries("#{base_path}/").each do |item|
@@ -80,32 +79,44 @@ class ChefDBWM < Sinatra::Application
     @format = 'form'
     encrypted_file = params[:bag_file]
     read_file = File.read(encrypted_file)
-    encrypted_data = JSON.parse(read_file)
-    bag_status = CheckEncryptedTester.new
-    @plain_data = encrypted_data
-    @encrypted = bag_status.encrypted?(encrypted_data)
-    error = 0
-    @secret_file_used = ''
-    if @encrypted
-      secret_keys.each do |secret_file|
-        next unless File.exist?(secret_file)
-        secret = Chef::EncryptedDataBagItem.load_secret(secret_file)
-        begin
-          @plain_data = Chef::EncryptedDataBagItem.new(encrypted_data, secret).to_hash
-          error = 0
-        rescue StandardError
-          error = 1
-        end
-        @secret_file_used = secret_file
-        break if error == 0
-      end
+    @error = 0
+    begin
+      encrypted_data = JSON.parse(read_file)
+      bag_status = CheckEncryptedTester.new
+      @plain_data = encrypted_data
+      @encrypted = bag_status.encrypted?(encrypted_data)
+    rescue JSON::ParserError
+      @error = 2
     end
-    type = @plain_data.map { |_, val| val.class }
-    msg = type.include?(Hash) ? 'json' : 'form'
-    msg = 'json' if @plain_data.empty?
-    @format = msg
-    @message = {type: 'info', msg: "Default edition format is #{msg}" } if @message.nil?
-    @error_type = "Private key not found to read encrypted databag #{encrypted_file}" if error == 1
+    case @error
+    when 0
+      @secret_file_used = ''
+      if @encrypted
+        secret_keys.each do |secret_file|
+          next unless File.exist?(secret_file)
+          secret = Chef::EncryptedDataBagItem.load_secret(secret_file)
+          begin
+            @plain_data = Chef::EncryptedDataBagItem.new(encrypted_data, secret).to_hash
+            @error = 0
+          rescue StandardError
+            @error = 1
+            @message = {
+              type: 'warning',
+              msg: "Private key not found to read encrypted databag '#{File.split(encrypted_file).last}'"
+            }
+          end
+          @secret_file_used = secret_file
+          break if @error == 0
+        end
+      end
+      type = @plain_data.map { |_, val| val.class }
+      msg = type.include?(Hash) ? 'json' : 'form'
+      msg = 'json' if @plain_data.empty?
+      @format = msg
+      @message = {type: 'info', msg: "Default edition format is #{msg}" } if @error == 0
+    when 2
+      @message = {type: 'error', msg: "File '#{File.split(params[:bag_file]).last}' is not in JSON format" }
+    end
     slim :edit_bag
   end
 

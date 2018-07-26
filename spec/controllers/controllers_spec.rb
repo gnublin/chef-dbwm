@@ -2,11 +2,8 @@
 # Copyright (c) 2018 Gauthier FRANCOIS
 
 require 'spec_helper'
-require 'time'
-require 'json'
 require 'chef_dbwm'
 require 'rack/test'
-require 'rspec'
 
 DATA_BAG = '
 {
@@ -31,6 +28,8 @@ describe ChefDBWM do
 
   describe 'View/Edit' do
     file_enc = 'tests/data_bags/test2.json'
+    file_wrong_enc = 'tests/data_bags/test4.json'
+    file_wrong_format = 'tests/data_bags/test5.json'
     file_raw = 'tests/data_bags/test1.json'
     describe '::View' do
       before { get '/view', **params }
@@ -63,6 +62,18 @@ describe ChefDBWM do
         it('returns 200 OK') { expect(last_response).to be_ok }
         it('not contain "EDIT"') { expect(last_response.body).not_to include('>edit<') }
         it('Submit button is enabled') { expect(last_response.body).not_to include('disabled') }
+      end
+      describe '::edit::wrong::key' do
+        let(:params) { {bag_file: file_wrong_enc, disable: false} }
+        it('returns 200 OK') { expect(last_response).to be_ok }
+        it('not contain an error msg') do
+          expect(last_response.body).to include('Private key not found to read encrypted databag')
+        end
+      end
+      describe '::edit::wrong::format' do
+        let(:params) { {bag_file: file_wrong_format} }
+        it('returns 200 OK') { expect(last_response).to be_ok }
+        it('contain an error msg') { expect(last_response.body).to include('is not in JSON format') }
       end
       describe '::update' do
         let(:params) { {bag_file: file_enc, disable: false} }

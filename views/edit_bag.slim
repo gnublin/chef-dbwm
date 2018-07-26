@@ -1,35 +1,35 @@
 // MIT License
 // Copyright (c) 2018 Gauthier FRANCOIS
+- if @error == 0
+  form action="/edit" method="POST"
+    - params['disable'] == 'false' ? param_disable = false : param_disable = true
+    .uk-sticky style="z-index: 980;" uk-sticky="bottom: #top"
+      p.uk-margin
+          input.button.uk-button.uk-button-default.uk-background-muted type="submit" value="Save" disabled=param_disable
+          a.button.uk-button.uk-button-default.uk-background-muted href="/edit?bag_file=#{params[:bag_file]}&disable=#{param_disable ? false : true}" = param_disable ? 'edit' : 'view'
+          a.uk-button.uk-button-default.uk-background-muted uk-toggle="target: #modal-delete" Delete
+          a.uk-button.uk-button-default.uk-background-muted href="/view?path=#{File.split(params[:bag_file])[0]}" Back
+    input type="hidden" name="encrypted" value="#{@encrypted}"
+    input type="hidden" name="format" value="#{@format}"
+    input type="hidden" name="bag_file" value="#{params[:bag_file]}"
+    input type="hidden" name="__id" value="#{@plain_data['id']}"
+    input type="hidden" name="secret_key" value="#{@secret_file_used}"
+    br
+    - if @format == 'json'
+      ="Content:"
+      textarea.uk-textarea.uk-form-small.uk-height-large name="content" disabled=param_disable = "#{JSON.pretty_generate(@plain_data)}"
+    - else
+      - @plain_data.keys.sort_by(&:downcase).each do |item_name|
+        - item_data = @plain_data[item_name]
+        = "#{item_name}: "
+        - if item_data.to_s.length > 200
+          textarea.uk-textarea.uk-form-small.uk-height-large name="#{@plain_data['id']}_#{item_name}" disabled=param_disable = "#{item_data}"
+        - else
+          input.uk-input.uk-form-small name="#{@plain_data['id']}_#{item_name}" value="#{item_data}" disabled=param_disable
 
-form action="/edit" method="POST"
-  - params['disable'] == 'false' ? param_disable = false : param_disable = true
-  .uk-sticky style="z-index: 980;" uk-sticky="bottom: #top"
-    p.uk-margin
-        input.button.uk-button.uk-button-default.uk-background-muted type="submit" value="Save" disabled=param_disable
-        a.button.uk-button.uk-button-default.uk-background-muted href="/edit?bag_file=#{params[:bag_file]}&disable=#{param_disable ? false : true}" = param_disable ? 'edit' : 'view'
-        a.uk-button.uk-button-default.uk-background-muted uk-toggle="target: #modal-delete" Delete
-        a.uk-button.uk-button-default.uk-background-muted href="/view?path=#{File.split(params[:bag_file])[0]}" Back
-  input type="hidden" name="encrypted" value="#{@encrypted}"
-  input type="hidden" name="format" value="#{@format}"
-  input type="hidden" name="bag_file" value="#{params[:bag_file]}"
-  input type="hidden" name="__id" value="#{@plain_data['id']}"
-  input type="hidden" name="secret_key" value="#{@secret_file_used}"
-  br
-  - if @format == 'json'
-    ="Content:"
-    textarea.uk-textarea.uk-form-small.uk-height-large name="content" disabled=param_disable = "#{JSON.pretty_generate(@plain_data)}"
-  - else
-    - @plain_data.keys.sort_by(&:downcase).each do |item_name|
-      - item_data = @plain_data[item_name]
-      = "#{item_name}: "
-      - if item_data.to_s.length > 200
-        textarea.uk-textarea.uk-form-small.uk-height-large name="#{@plain_data['id']}_#{item_name}" disabled=param_disable = "#{item_data}"
-      - else
-        input.uk-input.uk-form-small name="#{@plain_data['id']}_#{item_name}" value="#{item_data}" disabled=param_disable
 
-
-.uk-modal id="modal-delete" uk-modal=""
-    .uk-modal-dialog.uk-modal-body
-        h2.uk-modal-title = "Are you sure?"
-        button.uk-button.uk-button-default.uk-modal-close type="button" Cancel
-        a.uk-button.uk-button-danger type="button" href="/delete?bag_file=#{params[:bag_file]}" Delete
+  .uk-modal id="modal-delete" uk-modal=""
+      .uk-modal-dialog.uk-modal-body
+          h2.uk-modal-title = "Are you sure?"
+          button.uk-button.uk-button-default.uk-modal-close type="button" Cancel
+          a.uk-button.uk-button-danger type="button" href="/delete?bag_file=#{params[:bag_file]}" Delete
