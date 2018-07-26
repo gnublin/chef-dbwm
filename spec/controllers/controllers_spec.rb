@@ -41,6 +41,13 @@ describe ChefDBWM do
         it('contain "test1.json"') { expect(last_response.body).to include('test1.json') }
         it('contain "test2.json"') { expect(last_response.body).to include('test2.json') }
         it('doesn\'t contain "test3.json"') { expect(last_response.body).not_to include('test3.json') }
+        it('doesn\'t contain HomePage"') { expect(last_response.body).not_to include('HomePage') }
+      end
+      describe '::with parameters::tweak_path' do
+        let(:params) { {path: 'tests/data_bags/../'} }
+        it('returns 301 OK') { expect(last_response).to be_redirect }
+        it('doesn\'t contain "test1.json"') { expect(last_response.body).not_to include('test1.json') }
+        it('contain HomePage') { expect(last_response.body).not_to include('HomePage') }
       end
     end
     describe '::Edit' do
