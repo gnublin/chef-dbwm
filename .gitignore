@@ -3,3 +3,4 @@ node_modul*
 public*
 brunch*
 *.log
+tests/data_bags/*.json
