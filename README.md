@@ -29,7 +29,8 @@ npm install
  ```
 
 ## Configure
-You should to create a `config.yml` configuration file.
+You should to create a `config/RACK_ENV/config.yml` configuration.
+Ex: `config/development/config.yml`
 
 ---
 #### Warning: This configuration file is required to run this app.
@@ -63,5 +64,5 @@ bundle exec rackup -p 8080
 Author: Gauthier FRANCOIS (<gauthier@openux.org>)
 
 ```text
-GNU General Public License v3.0
-```
+MIT License
+Copyright (c) 2018 Gauthier FRANCOIS```
