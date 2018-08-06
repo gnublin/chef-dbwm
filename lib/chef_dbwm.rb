@@ -114,7 +114,7 @@ class ChefDBWM < Sinatra::Application
       msg = type.include?(Hash) ? 'json' : 'form'
       @format = params['format'] ? params['format'] : msg
       @format_link = @format == 'json' ? 'form' : 'json'
-      @message = {type: 'info', msg: "Default edition format is #{msg}" } if @error == 0
+      @message = {type: 'info', msg: "Edit format is #{@format}" } if @error == 0
     when 1
       @error = 0
       @plain_data = '' if @plain_data.nil?
