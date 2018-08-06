@@ -79,15 +79,16 @@ class ChefDBWM < Sinatra::Application
     @format = 'form'
     encrypted_file = params[:bag_file]
     read_file = File.read(encrypted_file)
-    @error = 0
+    @error = read_file.include?('null') ? 1 : 0
     begin
       encrypted_data = JSON.parse(read_file)
-      bag_status = CheckEncryptedTester.new
-      @plain_data = encrypted_data
-      @encrypted = bag_status.encrypted?(encrypted_data)
     rescue JSON::ParserError
       @error = 2
     end
+    bag_status = CheckEncryptedTester.new
+    @plain_data = encrypted_data
+    @encrypted = @error == 0 ? bag_status.encrypted?(encrypted_data) : false
+
     case @error
     when 0
       @secret_file_used = ''
@@ -111,9 +112,14 @@ class ChefDBWM < Sinatra::Application
       end
       type = @plain_data.map { |_, val| val.class }
       msg = type.include?(Hash) ? 'json' : 'form'
-      msg = 'json' if @plain_data.empty?
-      @format = msg
+      @format = params['format'] ? params['format'] : msg
+      @format_link = @format == 'json' ? 'form' : 'json'
       @message = {type: 'info', msg: "Default edition format is #{msg}" } if @error == 0
+    when 1
+      @error = 0
+      @plain_data = '' if @plain_data.nil?
+      @format = 'json'
+      @message = {type: 'info', msg: 'Default edition format is json' }
     when 2
       @message = {type: 'error', msg: "File '#{File.split(params[:bag_file]).last}' is not in JSON format" }
     end
@@ -132,8 +138,7 @@ class ChefDBWM < Sinatra::Application
     end
     bag_file = params['bag_file']
     bag_origin_data = JSON.parse(File.read(bag_file))
-
-    diff_get = HashDiff.diff(bag_origin_data, bag_new_data)
+    diff_get = HashDiff.diff(bag_origin_data, bag_new_data) unless bag_origin_data.nil?
 
     if params['encrypted'] == 'true'
       secret = Chef::EncryptedDataBagItem.load_secret(params['secret_key'])
@@ -141,14 +146,14 @@ class ChefDBWM < Sinatra::Application
       diff_get = HashDiff.diff(bag_origin_data_enc, bag_new_data)
     end
 
-    diff_patch = HashDiff.patch!({}, diff_get)
+    diff_patch = HashDiff.patch!({}, diff_get) unless bag_origin_data.nil?
 
     if params['encrypted'] == 'true'
       secret = Chef::EncryptedDataBagItem.load_secret(params['secret_key'])
       bag_new_data = Chef::EncryptedDataBagItem.encrypt_data_bag_item(diff_patch, secret)
     end
 
-    bag_new_data = bag_origin_data.merge(bag_new_data)
+    bag_new_data = bag_origin_data.merge(bag_new_data) unless bag_origin_data.nil?
     File.open(bag_file, 'w')
     File.write bag_file, "#{JSON.pretty_generate(bag_new_data)}\n"
 
@@ -161,15 +166,28 @@ class ChefDBWM < Sinatra::Application
 
   post '/create' do
     bag_file = "#{params['bag_path']}/#{params['file_name']}.json"
-    data = JSON.parse(params['content'])
+    @error = params['content'].empty? ? 2 : 0
+    begin
+      data = JSON.parse(params['content'])
+      @error = 0
+    rescue JSON::ParserError
+      @error = 1
+      session[:message] = {type: 'error', msg: 'Content field is not in JSON format' }
+    end
     unless params['encrypted'] == 'raw'
       secret = Chef::EncryptedDataBagItem.load_secret(params['encrypted'])
       data = Chef::EncryptedDataBagItem.encrypt_data_bag_item(data, secret)
     end
-    File.open(bag_file, 'w')
-    File.write bag_file, "#{JSON.pretty_generate(data)}\n"
-    session[:message] = {type: 'success', msg: "#{params['file_name']}.json has been created successfully" }
-    redirect "/edit?bag_file=#{bag_file}"
+
+    if @error == 0
+      File.open(bag_file, 'w')
+      File.write bag_file, "#{JSON.pretty_generate(data)}\n"
+      session[:message] = {type: 'success', msg: "#{params['file_name']}.json has been created successfully" }
+      redirect "/edit?bag_file=#{bag_file}"
+    else
+      session[:message] = { type: 'error', msg: "File '#{params['file_name']}' is empty or not in JSON format" }
+      redirect request.referer || ''
+    end
   end
 
   get '/delete' do
