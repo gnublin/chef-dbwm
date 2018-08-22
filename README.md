@@ -65,4 +65,5 @@ Author: Gauthier FRANCOIS (<gauthier@openux.org>)
 
 ```text
 MIT License
-Copyright (c) 2018 Gauthier FRANCOIS```
+Copyright (c) 2018 Gauthier FRANCOIS
+```
