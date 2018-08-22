@@ -11,8 +11,8 @@ It try all secrets you have set to uncrypte the databag you want to see.
 The databag modification is in increment and only the part of change is modify; that's better to follow changes
 
 ## Requirement
- * bundler
- * npm
+ * bundler (gem install bundler)
+ * [npm](https://www.npmjs.com/get-npm)
 
 ## Install
  * Clone this repository
