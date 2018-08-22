@@ -151,17 +151,27 @@ describe ChefDBWM do
         it('file test3.json contain cipher') { expect(File.read(file)).to include('"cipher": "aes-256-gcm"') }
         it('file test3.json is Hash class') { expect(JSON.parse(File.read(file))).to be_a(Hash) }
       end
-      describe '::create::invalid_json' do
+      describe '::create::invalid_json::plain' do
         let(:params) do
           {
             bag_path: 'tests/data_bags',
             file_name: 'test6',
-            encrypted: false,
+            encrypted: 'raw',
             content: '{"test": fail',
           }
         end
-        it('returns redirect') { expect(last_response).to be_redirect }
-        it('contain an error msg') { expect(last_response.body).to include('is not in JSON format') }
+        it('returns redirect') { expect(last_response.status).to eq(303) }
+      end
+      describe '::create::invalid_json::encrypted' do
+        let(:params) do
+          {
+            bag_path: 'tests/data_bags',
+            file_name: 'test6',
+            encrypted: 'tests/secret_key',
+            content: '{"test": fail',
+          }
+        end
+        it('returns redirect') { expect(last_response.status).to eq(303) }
       end
     end
 
