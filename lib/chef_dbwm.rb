@@ -218,7 +218,14 @@ class ChefDBWM < Sinatra::Application
     redirect "/view?path=#{file_path}"
   end
 
-  get '/*' do
+  get '/' do
     slim :index
+  end
+
+  not_found do
+    slim :not_found
+  end
+  get '/*' do
+    redirect '/404', 404
   end
 end
