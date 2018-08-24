@@ -186,4 +186,11 @@ describe ChefDBWM do
       it('test3.json has been deleted') { expect(File).not_to exist(file) }
     end
   end
+
+  describe 'Error' do
+    describe '::404' do
+      before { get '/toto' }
+      it('returns 404') { expect(last_response.status).to eq(404) }
+    end
+  end
 end
