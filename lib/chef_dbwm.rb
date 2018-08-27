@@ -204,6 +204,25 @@ class ChefDBWM < Sinatra::Application
     end
   end
 
+  get '/generate_bag' do
+    slim :generate_bag
+  end
+
+  post '/generate_bag' do
+    begin
+      plain_data = JSON.parse(params['content'])
+      @error = 0
+    rescue JSON::ParserError
+      @error = 1
+      session[:message] = {type: 'error', msg: 'Content field is not in JSON format' }
+    end
+    secret = Chef::EncryptedDataBagItem.load_secret(params['encrypted'])
+    @bag_content = Chef::EncryptedDataBagItem.encrypt_data_bag_item(plain_data, secret)
+    @key = @all_keys.select { |_, conf| conf['path'] == params['encrypted'] }.keys.first
+    @json_content = plain_data
+    slim :generate_bag
+  end
+
   get '/delete' do
     file_path, file_name = File.split(params[:bag_file])
     begin

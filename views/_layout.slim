@@ -18,7 +18,9 @@ html
               ul.uk-nav.uk-navbar-dropdown-nav
                 - @data_bag_dir.each do |dir|
                   li: a href="/view?path=#{dir['path']}"= dir['name']
-    div.uk-container.uk-container-small.uk-position-relative
+          li
+            a href="/generate_bag" Generate
+    div.uk-container.uk-container-large.uk-position-relative
       - if @message
         - if @message[:type] == 'error'
           .uk-alert-danger = @message[:msg]
