@@ -20,7 +20,7 @@ html
                   li: a href="/view?path=#{dir['path']}"= dir['name']
           li
             a href="/generate_bag" Generate
-    div.uk-container.uk-container-small.uk-position-relative
+    div.uk-container.uk-container-large.uk-position-relative
       - if @message
         - if @message[:type] == 'error'
           .uk-alert-danger = @message[:msg]

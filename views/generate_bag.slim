@@ -1,0 +1,33 @@
+// MIT License
+// Copyright (c) 2018 Gauthier FRANCOIS
+
+form action='/generate_bag' method='POST'
+  input type='hidden' name='bag_path' value="#{params[:bag_path]}"
+  input type='hidden' name='__id' value='new'
+  input type="hidden" name='secret_key' value="#{@secret_file_used}"
+  .uk-margin
+    input.button.uk-button.uk-button-default.uk-background-muted type='submit' value='Generate'=>
+    br
+    =>"Select key to encrypte"
+    . uk-form-custom="target: > * > span:first-child"
+      select# name="encrypted"
+        - @all_keys.each do |name, path|
+          option value="#{path['path']}"= name
+      button class="uk-button uk-button-default" type="button" tabindex="-1"
+        span
+        span uk-icon="icon: chevron-down"
+    br
+    div.uk-column-1-2.uk-column-divider
+      p
+        label
+          ="Plain data: "
+          br
+          textarea.uk-textarea.uk-form-small.uk-height-large name='content' id="form-stacked-text"
+            =@json_content ? JSON.pretty_generate(@json_content) : JSON.pretty_generate({id: "ressource_id"})
+      p
+        label
+          ="Encrypted data with #{@key} key: "
+          br
+        textarea.uk-textarea.uk-form-small.uk-height-large disabled="true"
+          = JSON.pretty_generate(@bag_content) if @bag_content
+  br
