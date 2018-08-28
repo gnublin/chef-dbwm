@@ -55,16 +55,11 @@ describe ChefDBWM do
         let(:params) { {bag_file: file_enc} }
         it('returns 200 OK') { expect(last_response).to be_ok }
         it('contain "EDIT"') { expect(last_response.body).to include('>edit<') }
+        it('contain "VIEW"') { expect(last_response.body).to include('>view<') }
         it('Submit button is disabled') { expect(last_response.body).to include('disabled') }
       end
-      describe '::edit' do
-        let(:params) { {bag_file: file_enc, disable: false} }
-        it('returns 200 OK') { expect(last_response).to be_ok }
-        it('not contain "EDIT"') { expect(last_response.body).not_to include('>edit<') }
-        it('Submit button is enabled') { expect(last_response.body).not_to include('disabled') }
-      end
       describe '::edit::wrong::key' do
-        let(:params) { {bag_file: file_wrong_enc, disable: false} }
+        let(:params) { {bag_file: file_wrong_enc} }
         it('returns 200 OK') { expect(last_response).to be_ok }
         it('not contain an error msg') do
           expect(last_response.body).to include('Private key not found to read encrypted databag')
@@ -74,12 +69,6 @@ describe ChefDBWM do
         let(:params) { {bag_file: file_wrong_format} }
         it('returns 200 OK') { expect(last_response).to be_ok }
         it('contain an error msg') { expect(last_response.body).to include('is not in JSON format') }
-      end
-      describe '::update' do
-        let(:params) { {bag_file: file_enc, disable: false} }
-        it('returns 200 OK') { expect(last_response).to be_ok }
-        it('not contain "EDIT"') { expect(last_response.body).not_to include('>edit<') }
-        it('Submit button is enabled') { expect(last_response.body).not_to include('disabled') }
       end
     end
     describe '::Update' do

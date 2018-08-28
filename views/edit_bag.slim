@@ -7,8 +7,8 @@
       p.uk-margin
           input.button.uk-button.uk-button-default.uk-disabled.uk-background-muted type="submit" value="Save" id="disabled_input"
           button.uk-button.uk-button-default.uk-button-secondary type="button" uk-toggle="target: #disabled_input; cls: uk-disabled uk-background-muted uk-card-primary"
-            div.toggle3 hidden="true" uk-toggle="target: .toggle3"= "view"
-            div.toggle3 uk-toggle="target: .toggle3"= "edit"
+            div.toggle-edit hidden="true" uk-toggle="target: .toggle-edit"= "view"
+            div.toggle-edit uk-toggle="target: .toggle-edit"= "edit"
           a.uk-button.uk-button-default.uk-button-primary href="/edit?bag_file=#{params[:bag_file]}&format=#{@format_link}"= "As #{@format_link}"
           a.uk-button.uk-button-default.uk-button-danger uk-toggle="target: #modal-delete" Delete
           a.uk-button.uk-button-default.uk-button-primary href="/view?path=#{File.split(params[:bag_file])[0]}" Back
