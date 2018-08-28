@@ -28,6 +28,7 @@ form action='/generate_bag' method='POST'
         label
           ="Encrypted data with #{@key} key: "
           br
-        textarea.uk-textarea.uk-form-small.uk-height-large disabled="true"
+        textarea.uk-textarea.uk-form-small.uk-height-large.uk-disabled id="test1"
           = JSON.pretty_generate(@bag_content) if @bag_content
   br
+

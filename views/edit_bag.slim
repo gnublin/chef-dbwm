@@ -5,11 +5,13 @@
     - params['disable'] == 'false' ? param_disable = false : param_disable = true
     .uk-sticky style="z-index: 980;" uk-sticky="bottom: #top"
       p.uk-margin
-          input.button.uk-button.uk-button-default.uk-background-muted type="submit" value="Save" disabled=param_disable
-          a.button.uk-button.uk-button-default.uk-background-muted href="/edit?bag_file=#{params[:bag_file]}&format=#{params['format']||@format}&disable=#{param_disable ? false : true}" = param_disable ? 'edit' : 'view'
-          a.uk-button.uk-button-default.uk-background-muted href="/edit?bag_file=#{params[:bag_file]}&format=#{@format_link}&disable=#{params['disable']}" = "As #{@format_link}"
-          a.uk-button.uk-button-default.uk-background-muted uk-toggle="target: #modal-delete" Delete
-          a.uk-button.uk-button-default.uk-background-muted href="/view?path=#{File.split(params[:bag_file])[0]}" Back
+          input.button.uk-button.uk-button-default.uk-disabled.uk-background-muted type="submit" value="Save" id="disabled_input"
+          button.uk-button.uk-button-default.uk-button-secondary type="button" uk-toggle="target: #disabled_input; cls: uk-disabled uk-background-muted uk-card-primary"
+            div.toggle3 hidden="true" uk-toggle="target: .toggle3"= "view"
+            div.toggle3 uk-toggle="target: .toggle3"= "edit"
+          a.uk-button.uk-button-default.uk-button-primary href="/edit?bag_file=#{params[:bag_file]}&format=#{@format_link}"= "As #{@format_link}"
+          a.uk-button.uk-button-default.uk-button-danger uk-toggle="target: #modal-delete" Delete
+          a.uk-button.uk-button-default.uk-button-primary href="/view?path=#{File.split(params[:bag_file])[0]}" Back
     input type="hidden" name="encrypted" value="#{@encrypted}"
     input type="hidden" name="format" value="#{@format}"
     input type="hidden" name="bag_file" value="#{params[:bag_file]}"
@@ -18,15 +20,15 @@
     br
     - if @format == 'json'
       ="Content:"
-      textarea.uk-textarea.uk-form-small.uk-height-large name="content" disabled=param_disable = "#{JSON.pretty_generate(@plain_data)}"
+      textarea.uk-textarea.uk-form-small.uk-height-large.uk-disabled.uk-background-muted name="content" id="disabled_input" = "#{JSON.pretty_generate(@plain_data)}"
     - else
       - @plain_data.keys.sort_by(&:downcase).each do |item_name|
         - item_data = @plain_data[item_name]
         = "#{item_name}: "
         - if item_data.to_s.length > 200
-          textarea.uk-textarea.uk-form-small.uk-height-large name="#{@plain_data['id']}_#{item_name}" disabled=param_disable = "#{item_data}"
+          textarea.uk-textarea.uk-form-small.uk-height-large.uk-disabled.uk-background-muted name="#{@plain_data['id']}_#{item_name}" id="disabled_input" = "#{item_data}"
         - else
-          input.uk-input.uk-form-small name="#{@plain_data['id']}_#{item_name}" value="#{item_data}" disabled=param_disable
+          input.uk-input.uk-form-small.uk-disabled.uk-background-muted name="#{@plain_data['id']}_#{item_name}" value="#{item_data}" id="disabled_input"
 
 
   .uk-modal id="modal-delete" uk-modal=""
