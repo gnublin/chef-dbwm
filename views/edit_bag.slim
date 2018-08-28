@@ -6,12 +6,12 @@
     .uk-sticky style="z-index: 980;" uk-sticky="bottom: #top"
       p.uk-margin
           input.button.uk-button.uk-button-default.uk-disabled.uk-background-muted type="submit" value="Save" id="disabled_input"
-          button.uk-button.uk-button-default.uk-button-secondary type="button" uk-toggle="target: #disabled_input; cls: uk-disabled uk-background-muted uk-card-primary"
+          button.uk-button.uk-button-default type="button" uk-toggle="target: #disabled_input; cls: uk-disabled uk-background-muted uk-card-primary"
             div.toggle-edit hidden="true" uk-toggle="target: .toggle-edit"= "view"
             div.toggle-edit uk-toggle="target: .toggle-edit"= "edit"
-          a.uk-button.uk-button-default.uk-button-primary href="/edit?bag_file=#{params[:bag_file]}&format=#{@format_link}"= "As #{@format_link}"
+          a.uk-button.uk-button-default href="/edit?bag_file=#{params[:bag_file]}&format=#{@format_link}"= "As #{@format_link}"
           a.uk-button.uk-button-default.uk-button-danger uk-toggle="target: #modal-delete" Delete
-          a.uk-button.uk-button-default.uk-button-primary href="/view?path=#{File.split(params[:bag_file])[0]}" Back
+          a.uk-button.uk-button-default href="/view?path=#{File.split(params[:bag_file])[0]}" Back
     input type="hidden" name="encrypted" value="#{@encrypted}"
     input type="hidden" name="format" value="#{@format}"
     input type="hidden" name="bag_file" value="#{params[:bag_file]}"
