@@ -49,7 +49,6 @@ class ChefDBWM < Sinatra::Application
     if params[:path]
       real_path = File.realpath(params[:path])
       check_path = @data_bag_dir.map { |databag| databag['path'] if real_path.match?(File.realpath(databag['path'])) }
-
       base_path = File.realpath(real_path)
       bags_dir[base_path] = {}
       root_dir = @data_bag_dir.map { |databag| base_path == File.realpath(databag['path']) }
@@ -61,18 +60,18 @@ class ChefDBWM < Sinatra::Application
         bags_dir[base_path][item] = 'file' if File.file?("#{base_path}/#{item}")
       end
       @data_bags = bags_dir
-      @data_bags_path = File.realpath(check_path.first)
 
     else
       @error_message = 'Please specify a good databag'
     end
-    if check_path.include? false
+    if check_path.include? nil
       @message = {
         type: 'warning',
         msg: "Path #{params[:path]} not permit.Please check your permission or your configuration file.",
       }
       redirect '/'
     end
+    @data_bags_path = File.realpath(check_path.first)
     slim :view
   end
 
@@ -112,6 +111,8 @@ class ChefDBWM < Sinatra::Application
       msg = type.include?(Hash) ? 'json' : 'form'
       @format = params['format'] ? params['format'] : msg
       @format_link = @format == 'json' ? 'form' : 'json'
+      @ordered_data = {'id' => @plain_data.delete('id')}
+      @plain_data = @ordered_data.merge(Hash[@plain_data.sort])
       if @error == 1
         @message = {
           type: 'warning',
