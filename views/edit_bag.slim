@@ -18,6 +18,8 @@
     input type="hidden" name="__id" value="#{@plain_data['id'] || Random.rand(11)}"
     input type="hidden" name="secret_key" value="#{@secret_file_used}"
     br
+    = "Filename: #{params[:bag_file]}"
+    br
     - if @format == 'json'
       ="Content:"
       textarea.uk-textarea.uk-form-small.uk-height-large.uk-disabled.uk-background-muted name="content" id="disabled_input" = "#{JSON.pretty_generate(@plain_data)}"

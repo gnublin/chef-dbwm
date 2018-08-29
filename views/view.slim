@@ -1,9 +1,14 @@
 // MIT License
 // Copyright (c) 2018 Gauthier FRANCOIS
-
 -@data_bags.each do |bag_name, data_item|
   a.button.uk-button.uk-button-default.uk-background-muted href="create?bag_path=#{bag_name}" Create
-  P= "#{bag_name}"
+  ul.uk-breadcrumb
+    li
+      a =""
+    -breadcrumb = bag_name.gsub(@data_bags_path,'').split('/').reject{|t| t.empty?}
+    -breadcrumb.each_with_index  do |el_path, el_idx|
+      li
+        a href="?path=#{@data_bags_path}/#{breadcrumb[0,el_idx+1].join('/')}"="#{el_path}"
   ul.uk-iconnav.uk-iconnav-vertical
     -data_item.sort.each do |item|
       -if item[1] == 'dir'

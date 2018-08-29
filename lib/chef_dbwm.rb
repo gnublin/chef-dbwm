@@ -48,7 +48,7 @@ class ChefDBWM < Sinatra::Application
 
     if params[:path]
       real_path = File.realpath(params[:path])
-      check_path = @data_bag_dir.map { |databag| real_path.match?(File.realpath(databag['path'])) }
+      check_path = @data_bag_dir.map { |databag| databag['path'] if real_path.match?(File.realpath(databag['path'])) }
 
       base_path = File.realpath(real_path)
       bags_dir[base_path] = {}
@@ -61,6 +61,8 @@ class ChefDBWM < Sinatra::Application
         bags_dir[base_path][item] = 'file' if File.file?("#{base_path}/#{item}")
       end
       @data_bags = bags_dir
+      @data_bags_path = File.realpath(check_path.first)
+
     else
       @error_message = 'Please specify a good databag'
     end
