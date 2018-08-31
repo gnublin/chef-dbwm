@@ -5,13 +5,14 @@
   ul.uk-breadcrumb
     li
       a =""
-    -breadcrumb = bag_name.gsub(@data_bags_path,'').split('/').reject{|t| t.empty?}
-    -breadcrumb.each_with_index  do |el_path, el_idx|
-      li
-        a href="?path=#{@data_bags_path}/#{breadcrumb[0,el_idx+1].join('/')}"="#{el_path}"
+    -unless @data_bags_path.nil?
+      -breadcrumb = bag_name.gsub(@data_bags_path,'').split('/').reject{|t| t.empty?}
+      -breadcrumb.each_with_index  do |el_path, el_idx|
+        li
+          a href="?path=#{@data_bags_path}/#{breadcrumb[0,el_idx+1].join('/')}"="#{el_path}"
   ul.uk-iconnav.uk-iconnav-vertical
     -data_item.sort.each do |item|
       -if item[1] == 'dir'
-        li: a.far.fa-folder href="?path=#{bag_name}/#{item[0]}"= " #{item[0]}"
+        li: a.far.fa-folder href="?path=#{bag_name}:#{@databag_path}/#{item[0]}"= " #{item[0]}"
       -else
-        li: a.far.fa-file href="/edit?bag_file=#{bag_name}/#{item[0]}"= " #{item[0]}"
+        li: a.far.fa-file href="/edit?bag_file=#{bag_name}:#{@databag_path}/#{item[0]}"= " #{item[0]}"

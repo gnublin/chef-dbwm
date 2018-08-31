@@ -3,5 +3,4 @@ mdb_config:
     main:
       path: tests/secret_key
   data_bags_path:
-    - name: main
-      path: tests/data_bags
+    main: tests/data_bags
