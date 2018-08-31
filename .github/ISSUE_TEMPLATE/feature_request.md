@@ -4,14 +4,15 @@ about: Suggest an idea for this project
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+**Description**
+We want to mange some page
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+**What we will doing**
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+- [ ] First step
+- [ ] Second step
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+**Look around**
+- [ ] View path have the same requirement?
+- [ ] If needed not now, please create a new ticket.
+- [ ] Else update desc of issue and do it!
