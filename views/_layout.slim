@@ -16,8 +16,8 @@ html
             a href="#" Databags
             .uk-navbar-dropdown
               ul.uk-nav.uk-navbar-dropdown-nav
-                - @data_bag_dir.each do |dir|
-                  li: a href="/view?path=#{dir['path']}"= dir['name']
+                - @data_bag_dir.each_key do |dir|
+                  li: a href="/view?path=#{dir}"= dir
           li
             a href="/generate_bag" Generate
     div.uk-container.uk-container-large.uk-position-relative

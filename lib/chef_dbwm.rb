@@ -47,39 +47,47 @@ class ChefDBWM < Sinatra::Application
     bags_dir = {}
 
     if params[:path]
-      real_path = File.realpath(params[:path])
-      check_path = @data_bag_dir.map { |databag| databag['path'] if real_path.match?(File.realpath(databag['path'])) }
-      base_path = File.realpath(real_path)
-      bags_dir[base_path] = {}
-      root_dir = @data_bag_dir.map { |databag| base_path == File.realpath(databag['path']) }
+      databag_name, relative_path = params[:path].split(':')
+      base_path = @data_bag_dir[databag_name]
+      bags_dir[databag_name] = {}
+
+      unless relative_path.nil?
+        base_path = nil if relative_path.match?(%r{^../$})
+        base_path = nil if relative_path.match?(/^\.\.$/)
+        base_path = nil if relative_path.match?(%r{/^!//})
+      end
+      base_path = File.realpath("#{base_path}#{relative_path}") unless base_path.nil?
+
       Dir.entries("#{base_path}/").each do |item|
         next if item.match?(/^\.$/)
-        next if item.match?(/^\.\./) && base_path == @data_bag_dir
-        next if item.match?(/^\.\./) && root_dir.include?(true)
-        bags_dir[base_path][item] = 'dir' if File.directory?("#{base_path}/#{item}")
-        bags_dir[base_path][item] = 'file' if File.file?("#{base_path}/#{item}")
+        next if item.match?(/^\.\./) && relative_path.nil?
+        bags_dir[databag_name][item] = 'dir' if File.directory?("#{base_path}/#{item}")
+        bags_dir[databag_name][item] = 'file' if File.file?("#{base_path}/#{item}")
       end
       @data_bags = bags_dir
-
     else
       @error_message = 'Please specify a good databag'
     end
-    if check_path.include? nil
+    if base_path.nil?
       @message = {
         type: 'warning',
         msg: "Path #{params[:path]} not permit.Please check your permission or your configuration file.",
       }
       redirect '/'
     end
-    @data_bags_path = File.realpath(check_path.first)
+
+    @databag_path = base_path.gsub(File.realpath(@data_bag_dir[databag_name]), '') unless relative_path.nil?
     slim :view
   end
 
   get '/edit' do
+    databag_name, relative_path = params[:bag_file].split(':')
+    base_path = @data_bag_dir[databag_name]
+    file_path = File.realpath("#{base_path}/#{relative_path}") unless relative_path.nil?
+
     secret_keys = @all_keys.map { |_, secret| secret['path'] }
     @format = 'form'
-    encrypted_file = params[:bag_file]
-    read_file = File.read(encrypted_file)
+    read_file = File.read(file_path)
     @error = read_file.include?('null') ? 1 : 0
     begin
       encrypted_data = JSON.parse(read_file)
@@ -116,7 +124,7 @@ class ChefDBWM < Sinatra::Application
       if @error == 1
         @message = {
           type: 'warning',
-          msg: "Private key not found to read encrypted databag '#{File.split(encrypted_file).last}'"
+          msg: "Private key not found to read encrypted databag '#{File.split(file_path).last}'"
         }
       elsif !@message.nil?
         @message = {type: 'info', msg: "Edit format is #{@format}" } if @error == 0
@@ -152,7 +160,9 @@ class ChefDBWM < Sinatra::Application
       redirect request.referer
     end
 
-    bag_file = params['bag_file']
+    databag_name, relative_path = params[:bag_file].split(':')
+    base_path = @data_bag_dir[databag_name]
+    bag_file = File.realpath("#{base_path}/#{relative_path}") unless relative_path.nil?
     bag_origin_data = JSON.parse(File.read(bag_file))
 
     if params['encrypted'] == 'true'
