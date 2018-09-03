@@ -58,13 +58,14 @@ bundle exec rackup -p 8080
 
 ## Commit convention ##
 
-feat(#issue): description* when issue is a feature
-card(#issue): description* when issue is a bug
-bug(card name): description* when issue is a card
-test(#issue): description* when you add more commits into issue
-doc(readme): description* when you want to update readme or other doc
+* feat(#issue): description* when issue is a feature
+* card(#issue): description* when issue is a bug
+* bug(#issue): description* when issue is a card
+* test(card name): description* when you add more commits into issue
+* doc(readme): description* when you want to update readme or other doc
 
-*description => feel free to add more details in multi-line list of you commit description
+
+*feel free to add more details in multi-line list of your commit description
 
 ## License and Author
 
