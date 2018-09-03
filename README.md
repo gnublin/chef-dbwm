@@ -46,18 +46,25 @@ mdb_config:
     env3:
       path: /home/user/databags_keys/secret_env3
   data_bags_path:
-    - name: project42
-      path: /home/user/code/git/project_john/data_bags
-    - name: project73
-      path: /home/user/code/git/project_jane/data_bags
-    - name: project0
-      path: /home/user/code/git/project_doe/data_bags
+    project42: /home/user/code/git/project_john/data_bags
+    project73: /home/user/code/git/project_jane/data_bags
+    project0: /home/user/code/git/project_doe/data_bags
 ```
 
 ## Run app
 ```
 bundle exec rackup -p 8080
 ```
+
+## Commit convention ##
+
+feat(#issue): description* when issue is a feature
+card(#issue): description* when issue is a bug
+bug(card name): description* when issue is a card
+test(#issue): description* when you add more commits into issue
+doc(readme): description* when you want to update readme or other doc
+
+*description => feel free to add more details in multi-line list of you commit description
 
 ## License and Author
 
