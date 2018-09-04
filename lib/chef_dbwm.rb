@@ -48,16 +48,32 @@ class ChefDBWM < Sinatra::Application
 
     if params[:path]
       databag_name, relative_path = params[:path].split(':')
+
+      redirect '/' if databag_name.nil?
+
       base_path = @data_bag_dir[databag_name]
       bags_dir[databag_name] = {}
 
       unless relative_path.nil?
         base_path = nil if relative_path.match?(%r{^../$})
         base_path = nil if relative_path.match?(/^\.\.$/)
+        base_path = nil if relative_path.match?(%r{^/\.\.})
         base_path = nil if relative_path.match?(%r{/^!//})
       end
-      base_path = File.realpath("#{base_path}#{relative_path}") unless base_path.nil?
 
+      if base_path.nil?
+        @message = {
+          type: 'warning',
+          msg: "Path #{params[:path]} not permit.Please check your permission or your configuration file.",
+        }
+        redirect "/view?path=#{databag_name}:"
+      end
+
+      begin
+        base_path = File.realpath("#{base_path}#{relative_path}")
+      rescue Errno::ENOENT
+        redirect '/404'
+      end
       Dir.entries("#{base_path}/").each do |item|
         next if item.match?(/^\.$/)
         next if item.match?(/^\.\./) && relative_path.nil?
@@ -68,13 +84,6 @@ class ChefDBWM < Sinatra::Application
     else
       @error_message = 'Please specify a good databag'
     end
-    if base_path.nil?
-      @message = {
-        type: 'warning',
-        msg: "Path #{params[:path]} not permit.Please check your permission or your configuration file.",
-      }
-      redirect '/'
-    end
 
     @databag_path = base_path.gsub(File.realpath(@data_bag_dir[databag_name]), '') unless relative_path.nil?
     slim :view
@@ -83,7 +92,11 @@ class ChefDBWM < Sinatra::Application
   get '/edit' do
     databag_name, relative_path = params[:bag_file].split(':')
     base_path = @data_bag_dir[databag_name]
-    file_path = File.realpath("#{base_path}/#{relative_path}") unless relative_path.nil?
+    begin
+      file_path = File.realpath("#{base_path}/#{relative_path}") unless relative_path.nil?
+    rescue Errno::ENOENT
+      redirect '/404'
+    end
 
     secret_keys = @all_keys.map { |_, secret| secret['path'] }
     @format = 'form'

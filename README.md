@@ -59,6 +59,7 @@ bundle exec rackup -p 8080
 ## Commit convention ##
 
 * feat(#issue): description* when issue is a feature
+* inprovement(#issue): description* when issue is a feature
 * card(#issue): description* when issue is a bug
 * bug(#issue): description* when issue is a card
 * test(card name): description* when you add more commits into issue

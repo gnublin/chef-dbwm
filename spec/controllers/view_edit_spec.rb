@@ -22,6 +22,7 @@ describe 'View/Edit' do
   file_wrong_format = 'main:test5.json'
   file_raw = 'main:test1.json'
   file_raw_path = 'tests/data_bags/test1.json'
+  file_not_exist = 'main:test4242.json'
   describe '::View' do
     before { get '/view?path=main', **params }
     describe '::with parameters' do
@@ -47,10 +48,14 @@ describe 'View/Edit' do
       it('doesn\'t contain "test1.json"') { expect(last_response.body).not_to include('test1.json') }
       it('contain HomePage') { expect(last_response.body).not_to include('HomePage') }
     end
+    describe '::with parameters::wrong path' do
+      let(:params) { {path: 'main:/test/dsq42'} }
+      it('returns redirect to 404') { expect(last_response).to be_redirect }
+    end
   end
   describe '::Edit' do
     before { get '/edit', **params }
-    describe '::view' do
+    describe '::display' do
       let(:params) { {bag_file: file_enc} }
       it('returns 200 OK') { expect(last_response).to be_ok }
       it('contain "EDIT"') { expect(last_response.body).to include('>edit<') }
@@ -68,6 +73,10 @@ describe 'View/Edit' do
       let(:params) { {bag_file: file_wrong_format} }
       it('returns 200 OK') { expect(last_response).to be_ok }
       it('contain an error msg') { expect(last_response.body).to include('is not in JSON format') }
+    end
+    describe '::edit::file::not_found' do
+      let(:params) { {bag_file: file_not_exist} }
+      it('returns redirect to 404') { expect(last_response).to be_redirect }
     end
   end
   describe '::Update' do
