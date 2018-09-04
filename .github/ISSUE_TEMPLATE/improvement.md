@@ -1,11 +1,11 @@
 ---
-name: Feature request
-about: Suggest an idea for this project
+name: Improvement
+about: Suggest improvements for this project
 
 ---
 
 **Description**
-We want to mange some page
+We want to mange this improvement to keep code clear
 
 **What we will doing**
 
