@@ -56,7 +56,7 @@ class ChefDBWM < Sinatra::Application
 
       unless relative_path.nil?
         base_path = nil if relative_path.match?(%r{^../$})
-        base_path = nil if relative_path.match?(/^\.\.$/)
+        base_path = nil if relative_path.match?(/^\.\./)
         base_path = nil if relative_path.match?(%r{^/\.\.})
         base_path = nil if relative_path.match?(%r{/^!//})
       end
@@ -66,7 +66,8 @@ class ChefDBWM < Sinatra::Application
           type: 'warning',
           msg: "Path #{params[:path]} not permit.Please check your permission or your configuration file.",
         }
-        redirect "/view?path=#{databag_name}:"
+        redirect "/view?path=#{databag_name}:" unless @data_bag_dir[databag_name].nil?
+        redirect '/404'
       end
 
       begin
