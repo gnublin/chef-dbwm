@@ -5,8 +5,8 @@
     - params['disable'] == 'false' ? param_disable = false : param_disable = true
     .uk-sticky style="z-index: 980;" uk-sticky="bottom: #top"
       p.uk-margin
-          input.button.uk-button.uk-button-default.uk-disabled.uk-background-muted type="submit" value="Save" id="disabled_input"
-          button.uk-button.uk-button-default type="button" uk-toggle="target: #disabled_input; cls: uk-disabled uk-background-muted uk-card-primary"
+          input.button.uk-button.uk-button-default.uk-background-muted type="submit" value="Save" id="disabled_input" disabled='true'
+          button.uk-button.uk-button-default type="button" onClick="manage_active('#disabled_input')"
             div.toggle-edit hidden="true" uk-toggle="target: .toggle-edit"= "view"
             div.toggle-edit uk-toggle="target: .toggle-edit"= "edit"
           a.uk-button.uk-button-default href="/edit?bag_file=#{params[:bag_file]}&format=#{@format_link}"= "As #{@format_link}"
@@ -22,15 +22,15 @@
     br
     - if @format == 'json'
       ="Content:"
-      textarea.uk-textarea.uk-form-small.uk-height-large.uk-disabled.uk-background-muted name="content" id="disabled_input" = "#{JSON.pretty_generate(@plain_data)}"
+      textarea.uk-textarea.uk-form-small.uk-height-large.uk-background-muted disabled='true' name="content" id="disabled_input" = "#{JSON.pretty_generate(@plain_data)}"
     - else
       - @plain_data.keys.each do |item_name|
         - item_data = @plain_data[item_name]
         = "#{item_name}: "
         - if item_data.to_s.length > 200
-          textarea.uk-textarea.uk-form-small.uk-height-large.uk-disabled.uk-background-muted name="#{@plain_data['id']}_#{item_name}" id="disabled_input" = "#{item_data}"
+          textarea.uk-textarea.uk-form-small.uk-height-large.uk-background-muted disabled='true' name="#{@plain_data['id']}_#{item_name}" id="disabled_input" = "#{item_data}"
         - else
-          input.uk-input.uk-form-small.uk-disabled.uk-background-muted name="#{@plain_data['id']}_#{item_name}" value="#{item_data}" id="disabled_input"
+          input.uk-input.uk-form-small.uk-background-muted disabled='true' name="#{@plain_data['id']}_#{item_name}" value="#{item_data}" id="disabled_input"
 
 
   .uk-modal id="modal-delete" uk-modal=""
@@ -38,3 +38,23 @@
           h2.uk-modal-title = "Are you sure?"
           button.uk-button.uk-button-default.uk-modal-close type="button" Cancel
           a.uk-button.uk-button-danger type="button" href="/delete?bag_file=#{params[:bag_file]}" Delete
+
+javascript:
+  function manage_active(id_sel){
+    document.querySelectorAll(id_sel).forEach(
+       function(a){
+         console.log(a.getAttribute('disabled'));
+         if (a.getAttribute('disabled') == 'true') {
+          console.log("dsq");
+          a.removeAttribute('disabled');
+          a.classList.remove('uk-background-muted');
+          a.classList.add('uk-background-primary');
+         }
+         else {
+          a.setAttribute('disabled', 'true');
+          a.classList.remove('uk-background-primary');
+          a.classList.add('uk-background-muted');
+         }
+       }
+    )
+  }
