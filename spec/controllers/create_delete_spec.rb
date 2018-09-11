@@ -24,7 +24,7 @@ describe 'Create/Delete' do
     describe '::create::valid' do
       let(:params) do
         {
-          bag_path: 'tests/data_bags',
+          bag_path: 'main:',
           file_name: 'test3',
           encrypted: 'tests/secret_key',
           content: DATA_BAG,
@@ -40,7 +40,7 @@ describe 'Create/Delete' do
     describe '::create::invalid_json::plain' do
       let(:params) do
         {
-          bag_path: 'tests/data_bags',
+          bag_path: 'main:',
           file_name: 'test6',
           encrypted: 'raw',
           content: '{"test": fail',
@@ -51,7 +51,7 @@ describe 'Create/Delete' do
     describe '::create::invalid_json::encrypted' do
       let(:params) do
         {
-          bag_path: 'tests/data_bags',
+          bag_path: 'main:',
           file_name: 'test6',
           encrypted: 'tests/secret_key',
           content: '{"test": fail',
@@ -65,7 +65,7 @@ describe 'Create/Delete' do
     before { get '/delete', **params }
     let(:params) do
       {
-        bag_file: 'tests/data_bags/test3.json',
+        bag_file: 'main:test3.json',
       }
     end
     it('returns redirect') { expect(last_response).to be_redirect }

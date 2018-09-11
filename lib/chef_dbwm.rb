@@ -206,7 +206,10 @@ class ChefDBWM < Sinatra::Application
   end
 
   post '/create' do
-    bag_file = "#{params['bag_path']}/#{params['file_name']}.json"
+    databag_name, relative_path = params[:bag_path].split(':')
+    base_path = @data_bag_dir[databag_name]
+    base_path = "#{base_path}/#{relative_path}" unless relative_path.nil?
+    bag_file = "#{base_path}/#{params['file_name']}.json"
     @error = params['content'].empty? ? 2 : 0
     begin
       data = JSON.parse(params['content'])
@@ -224,10 +227,10 @@ class ChefDBWM < Sinatra::Application
       File.open(bag_file, 'w')
       File.write bag_file, "#{JSON.pretty_generate(data)}\n"
       session[:message] = {type: 'success', msg: "#{params['file_name']}.json has been created successfully" }
-      redirect "/edit?bag_file=#{bag_file}"
+      redirect "/edit?bag_file=#{databag_name}:#{relative_path}/#{params['file_name']}.json"
     else
       session[:message] = { type: 'error', msg: "File '#{params['file_name']}' is empty or not in JSON format" }
-      redirect "/create?bag_path=#{params['bag_path']}", 303
+      redirect "/create?bag_path=#{databag_name}:", 303
     end
   end
 
@@ -251,9 +254,11 @@ class ChefDBWM < Sinatra::Application
   end
 
   get '/delete' do
-    file_path, file_name = File.split(params[:bag_file])
+    databag_name, file_name = params[:bag_file].split(':')
+    file_path = @data_bag_dir[databag_name]
+    bag_file = "#{file_path}/#{file_name}"
     begin
-      File.delete(params['bag_file'])
+      File.delete(bag_file)
       msg = "#{file_name} has been delete."
       type = 'success'
     rescue StandardError
@@ -261,7 +266,7 @@ class ChefDBWM < Sinatra::Application
       type = 'error'
     end
     session[:message] = {type: type, msg: msg}
-    redirect "/view?path=#{file_path}"
+    redirect "/view?path=#{databag_name}:"
   end
 
   get '/' do
