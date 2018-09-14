@@ -17,3 +17,4 @@ jobs:
       - docker push gauth/chef-dbwm
     - stage: docker_tests
       script: docker run --rm gauth/chef-dbwm cat hello.txt
+      language: bash
