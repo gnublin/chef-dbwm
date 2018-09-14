@@ -7,6 +7,9 @@ jobs:
         - bundle exec rubocop
         - bundle exec rspec
     - stage: build docker image
+      sudo: true
+      dist: trusty
+      language: bash
       script:
       - docker build -t chef-dbwm .
       - docker images
