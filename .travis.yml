@@ -6,3 +6,11 @@ jobs:
       script:
         - bundle exec rubocop
         - bundle exec rspec
+    - stage: build docker image
+      script:
+      - docker build -t chef-dbwm .
+      - docker images
+      - docker tag chef-dbwm gauth/chef-dbwm
+      - docker push gauth/chef-dbwm
+    - stage: docker_tests
+      script: docker run --rm gauth/chef-dbwm cat hello.txt
