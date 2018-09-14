@@ -1,7 +1,8 @@
+
 jobs:
   include:
     - stage: tests
-    language: ruby
-    script:
-      - bundle exec rubocop
-      - bundle exec rspec
+      language: ruby
+      script:
+        - bundle exec rubocop
+        - bundle exec rspec
