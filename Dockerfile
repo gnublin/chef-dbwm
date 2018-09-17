@@ -30,7 +30,7 @@ ENV PATH /opt/rbenv/bin:$PATH
 RUN echo 'eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh # or /etc/profile
 RUN echo 'eval "$(rbenv init -)"' >> .bashrc
 
-
+RUN cd /app && rbenv rehash
 RUN cd /app && rbenv install
 RUN cd /app && gem install bundler
 RUN cd /app && bundle install
