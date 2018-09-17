@@ -20,12 +20,13 @@ RUN apt update && apt install -y nodejs
 
 RUN git clone https://github.com/rbenv/rbenv.git /opt/.rbenv
 RUN cd /opt/.rbenv && src/configure && make -C src
-RUN echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> /etc/bash.bashrc
+# RUN echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> /etc/bash.bashrc
+ENV PATH $PATH:/opt/.rbenv/bin
 RUN /opt/.rbenv/bin/rbenv init
 
 RUN mkdir -p /opt/.rbenv/plugins
 RUN git clone https://github.com/rbenv/ruby-build.git /opt/.rbenv/plugins/ruby-build
-RUN /opt/.rbenv/bin/rbenv rehash
+RUN cd /app && /opt/.rbenv/bin/rbenv rehash
 
 RUN cd /app && rbenv install
 RUN cd /app && gem install bundler
