@@ -1,5 +1,6 @@
 FROM debian:stretch
-MAINTAINER Gauthier FRANÇOIS "gauthier@openux.org"
+LABEL maintainer="gauthier@openux.org"
+
 
 # Install prerequisites
 # RUN apt-get update && apt-get install -y \
@@ -18,15 +19,17 @@ RUN apt update && apt install -y curl git gnupg1 gcc make
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
 RUN apt update && apt install -y nodejs
 
-RUN git clone https://github.com/rbenv/rbenv.git /opt/.rbenv
-RUN cd /opt/.rbenv && src/configure && make -C src
-# RUN echo 'export PATH="$HOME/.rbenv/bin:$PATH"' >> /etc/bash.bashrc
-ENV PATH $PATH:/opt/.rbenv/bin
-RUN /opt/.rbenv/bin/rbenv init
+RUN git clone https://github.com/rbenv/rbenv.git /opt/rbenv
+RUN cd /opt/rbenv && src/configure && make -C src
+RUN mkdir -p /opt/rbenv/plugins
+RUN git clone https://github.com/rbenv/ruby-build.git /opt/rbenv/plugins/ruby-build
 
-RUN mkdir -p /opt/.rbenv/plugins
-RUN git clone https://github.com/rbenv/ruby-build.git /opt/.rbenv/plugins/ruby-build
-RUN cd /app && /opt/.rbenv/bin/rbenv rehash
+RUN apt-get clean
+
+ENV PATH /opt/rbenv/bin:$PATH
+RUN echo 'eval "$(rbenv init -)"' >> /etc/profile.d/rbenv.sh # or /etc/profile
+RUN echo 'eval "$(rbenv init -)"' >> .bashrc
+
 
 RUN cd /app && rbenv install
 RUN cd /app && gem install bundler
