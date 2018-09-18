@@ -32,7 +32,7 @@ RUN echo 'eval "$(rbenv init -)"' >> .bashrc
 
 RUN cat
 RUN cd /app && rbenv init - && rbenv rehash
-RUN cd /app && rbenv init - && install
+RUN cd /app && rbenv init - && rbenv install
 RUN cd /app && gem install bundler
 RUN cd /app && bundle install
 RUN cd /app && npm install
