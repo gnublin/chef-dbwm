@@ -1,13 +1,23 @@
 // MIT License
 // Copyright (c) 2018 Gauthier FRANCOIS
+- if @templates && ! @templates.nil?
+  form action="/generate_bag" method="GET"
+    . uk-form-custom="target: > * > span:first-child"
+      select# name="template"
+        - @templates.each do |tpl_name, tpls|
+          - tpls.each do |tpl|
+            option value="#{tpl_name}:#{tpl}"= "#{tpl_name}:#{tpl}"
+      button class="uk-button uk-button-default" type="button" tabindex="-1"
+          span
+          span uk-icon="icon: chevron-down"
+    input.button.uk-button.uk-button-default.uk-background-muted type='submit' value='Use template'=>
+
 
 form action='/generate_bag' method='POST'
   input type='hidden' name='bag_path' value="#{params[:bag_path]}"
   input type='hidden' name='__id' value='new'
   input type="hidden" name='secret_key' value="#{@secret_file_used}"
   .uk-margin
-    input.button.uk-button.uk-button-default.uk-background-muted type='submit' value='Generate'=>
-    br
     =>"Select key to encrypte"
     . uk-form-custom="target: > * > span:first-child"
       select# name="encrypted"
@@ -16,6 +26,7 @@ form action='/generate_bag' method='POST'
       button class="uk-button uk-button-default" type="button" tabindex="-1"
         span
         span uk-icon="icon: chevron-down"
+    input.button.uk-button.uk-button-default.uk-background-muted type='submit' value='Generate'=>
     br
     div.uk-column-1-2.uk-column-divider
       p

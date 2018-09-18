@@ -235,18 +235,64 @@ class ChefDBWM < Sinatra::Application
   end
 
   get '/generate_bag' do
+    templates_dir = MDB_CONFIG['templates_dir']
+    @templates = {}
+    templates_dir.each do |tpl_name, tpl_dir|
+      @templates[tpl_name] = []
+      Dir.entries(tpl_dir).each do |tpl_file|
+        next if tpl_file.match?(/^\.$/)
+        next if tpl_file.match?(/^\.\./)
+        begin
+          JSON.parse(File.read(File.realpath("#{tpl_dir}/#{tpl_file}")))
+          is_json = 0
+        rescue JSON::ParserError
+          is_json = 1
+        end
+        @templates[tpl_name] << tpl_file if is_json == 0
+      end
+    end
+    if params['template']
+      begin
+        tpl_dir, tpl_name = params['template'].split(':')
+        tpl_file = "#{MDB_CONFIG['templates_dir'][tpl_dir]}/#{tpl_name}"
+        plain_data = JSON.parse(File.read(tpl_file))
+        @error = 0
+      rescue JSON::ParserError
+        @error = 1
+        @message = {type: 'error', msg: 'Selected template is not in JSON format' }
+      end
+    end
+    @json_content = plain_data
     slim :generate_bag
   end
 
   post '/generate_bag' do
-    begin
-      plain_data = JSON.parse(params['content'])
-      @error = 0
-    rescue JSON::ParserError
-      @error = 1
-      session[:message] = {type: 'error', msg: 'Content field is not in JSON format' }
+    templates_dir = MDB_CONFIG['templates_dir']
+    @templates = {}
+    templates_dir.each do |tpl_name, tpl_dir|
+      @templates[tpl_name] = []
+      Dir.entries(tpl_dir).each do |tpl_file|
+        next if tpl_file.match?(/^\.$/)
+        next if tpl_file.match?(/^\.\./)
+        begin
+          JSON.parse(File.read(File.realpath("#{tpl_dir}/#{tpl_file}")))
+          is_json = 0
+        rescue JSON::ParserError
+          is_json = 1
+        end
+        @templates[tpl_name] << tpl_file if is_json == 0
+      end
     end
-    secret = Chef::EncryptedDataBagItem.load_secret(params['encrypted'])
+    if params['content']
+      begin
+        plain_data = JSON.parse(params['content'])
+        @error = 0
+      rescue JSON::ParserError
+        @error = 1
+        session[:message] = {type: 'error', msg: 'Content field is not in JSON format' }
+      end
+      secret = Chef::EncryptedDataBagItem.load_secret(params['encrypted'])
+    end
     @bag_content = Chef::EncryptedDataBagItem.encrypt_data_bag_item(plain_data, secret)
     @key = @all_keys.select { |_, conf| conf['path'] == params['encrypted'] }.keys.first
     @json_content = plain_data
