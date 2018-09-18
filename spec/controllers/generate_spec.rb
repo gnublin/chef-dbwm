@@ -43,7 +43,6 @@ describe ChefDBWM do
     it('contain tpl num1') { expect(last_response.body).to include("option value=\"#{tpl_file_1}\"") }
     it('contain tpl num2') { expect(last_response.body).to include("option value=\"#{tpl_file_2}\"") }
     it('not contain tpl num3') { expect(last_response.body).not_to include(tpl_file_3) }
-
   end
 
   describe 'Generate get templates' do
