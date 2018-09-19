@@ -3,4 +3,5 @@ node_modul*
 public*
 brunch*
 *.log
-*test*.json
+templates*
+run
