@@ -13,8 +13,8 @@ jobs:
       script:
       - docker build -t chef-dbwm .
       - docker images
-      - docker tag chef-dbwm gauth/chef-dbwm
-      - docker push gauth/chef-dbwm
+      - docker tag chef-dbwm gnublin/chef-dbwm
+      - docker push gnublin/chef-dbwm
     - stage: docker_tests
       script: docker run --rm gauth/chef-dbwm cat hello.txt
       language: bash
