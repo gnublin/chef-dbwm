@@ -36,4 +36,3 @@ RUN cd /app && rbenv rehash
 RUN cd /app && gem install bundler
 RUN cd /app && bundle install
 RUN cd /app && npm install
-RUN cd /app && bundle exec rackup -p 8081
