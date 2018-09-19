@@ -16,6 +16,7 @@ jobs:
       - docker images
       - docker tag chef-dbwm gnublin/chef-dbwm
       - docker push gnublin/chef-dbwm
+      if: branch = master
     - stage: docker_tests
       script:
       - docker run --rm gnublin/chef-dbwm cat /app/config.ru
