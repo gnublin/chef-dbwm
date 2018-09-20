@@ -7,7 +7,7 @@ jobs:
         - bundle exec rubocop
         - bundle exec rspec
     - stage: build docker image
-      if: branch = master
+      if: (branch = master) AND (NOT (type IN (push, pull_request)))
       sudo: true
       dist: trusty
       language: bash
@@ -18,7 +18,7 @@ jobs:
       - docker tag chef-dbwm gnublin/chef-dbwm
       - docker push gnublin/chef-dbwm
     - stage: docker_tests
-      if: branch = master
+      if: (branch = master) AND (NOT (type IN (push, pull_request)))
       script:
       - docker run --rm gnublin/chef-dbwm cat /app/config.ru
       language: bash
