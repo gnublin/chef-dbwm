@@ -1,4 +1,24 @@
-language: ruby
-script:
-  - bundle exec rubocop
-  - bundle exec rspec
+
+jobs:
+  include:
+    - stage: tests
+      language: ruby
+      script:
+        - bundle exec rubocop
+        - bundle exec rspec
+    - stage: build docker image
+      if: (branch = master) AND (NOT (type IN (push, pull_request)))
+      sudo: true
+      dist: trusty
+      language: bash
+      script:
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      - docker build -t chef-dbwm .
+      - docker images
+      - docker tag chef-dbwm gnublin/chef-dbwm
+      - docker push gnublin/chef-dbwm
+    - stage: docker_tests
+      if: (branch = master) AND (NOT (type IN (push, pull_request)))
+      script:
+      - docker run --rm gnublin/chef-dbwm cat /app/config.ru
+      language: bash
