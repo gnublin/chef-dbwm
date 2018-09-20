@@ -6,7 +6,7 @@ jobs:
       script:
         - bundle exec rubocop
         - bundle exec rspec
-    if: branch = master
+  if: branch = master
     - stage: build docker image
       sudo: true
       dist: trusty
