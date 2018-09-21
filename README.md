@@ -1,14 +1,14 @@
 [![Build Status](https://travis-ci.org/gnublin/chef-dbwm.svg?branch=master)](https://travis-ci.org/gnublin/chef-dbwm)
 
 # Chef-dbwm
-Chef DataBags Web Manager is an application to manage your databag files.
-This app support the encrypted or not databags in json format.
+Chef DataBags Web Manager is an application to manage your databags files.
+This app support the encrypted or plain databags in json format.
 
 You can run this app on your chef server or locally on your computer.
 
-This app has for vocation to simplify the use of the databags compared to the `knife` command.
-It try all secrets you have set to uncrypte the databag you want to see.
-The databag modification is in increment and only the part of change is modify; that's better to follow changes
+This app has vocation to simplify databags management instead the `knife` command.
+App try all secrets you have registered to uncrypte the databag you want to access.
+The databag modification is concern only the part of changes; that's better to follow changes in versionning repository.
 
 # Install from GIT
 
@@ -31,7 +31,7 @@ npm install
  ```
 
 ## Configure
-Please read the <a href="#configure-1">configure</a> section
+Please read the [configure](#configure-2) section
 
 ## Run app
 ```
@@ -46,7 +46,23 @@ bundle exec rackup -p 8080
 git clone https://github.com/gnublin/chef-dbwm.git
  ```
 
+## Configure
+
+Please read the [configure](#configure-2) section
+
+**Warning:**
+* rackup in docker is in development mode. Your configuration file should be `config/development/config.yml`
+* `templates_dir` configuration is mapped in project `templates` dir by default.
+
 ## Run
+
+To run this app in docker, you should to run the docker-compose command:
+
+`docker-compose up` or `docker-compose up -d` to detach docker process
+
+To down this app, you could to use the docker-compose command too:
+
+`docker-compose down`
 
 # Configure
 
