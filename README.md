@@ -10,26 +10,47 @@ This app has for vocation to simplify the use of the databags compared to the `k
 It try all secrets you have set to uncrypte the databag you want to see.
 The databag modification is in increment and only the part of change is modify; that's better to follow changes
 
+# Install from GIT
+
+
 ## Requirement
  * bundler (gem install bundler)
  * [npm](https://www.npmjs.com/get-npm)
 
-## Install
- * Clone this repository
+## Prepare
+* Clone this repository
  ```
 git clone https://github.com/gnublin/chef-dbwm.git
  ```
- * Install ruby Gems
+* Install ruby Gems
  ```
 bundle install
  ```
- * Install node modules
+* Install node modules
  ```
 npm install
  ```
 
 ## Configure
+Please read the <a href="#how-to-configure">configure</a> section
+
+## Run app
+```
+bundle exec rackup -p 8080
+```
+
+# Install from docker
+
+## Prepare
+* Clone this repository
+ ```
+git clone https://github.com/gnublin/chef-dbwm.git
+ ```
+
+## Run
+
 You should to create a `config/RACK_ENV/config.yml` configuration.
+
 Ex: `config/development/config.yml`
 
 ---
@@ -49,11 +70,9 @@ mdb_config:
     project42: /home/user/code/git/project_john/data_bags
     project73: /home/user/code/git/project_jane/data_bags
     project0: /home/user/code/git/project_doe/data_bags
-```
-
-## Run app
-```
-bundle exec rackup -p 8080
+  templates_dir:
+    tpl1: /home/user/code/git/chef-dbwm/templates
+    tpl2: templates
 ```
 
 ## Commit convention ##
