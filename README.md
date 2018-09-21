@@ -31,7 +31,7 @@ npm install
  ```
 
 ## Configure
-Please read the <a href="#cofigure-1">configure</a> section
+Please read the <a href="#configure-1">configure</a> section
 
 ## Run app
 ```
