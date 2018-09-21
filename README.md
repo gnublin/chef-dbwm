@@ -12,7 +12,6 @@ The databag modification is in increment and only the part of change is modify; 
 
 # Install from GIT
 
-
 ## Requirement
  * bundler (gem install bundler)
  * [npm](https://www.npmjs.com/get-npm)
@@ -32,7 +31,7 @@ npm install
  ```
 
 ## Configure
-Please read the <a href="#how-to-configure">configure</a> section
+Please read the <a href="#cofigure">configure</a> section
 
 ## Run app
 ```
@@ -48,6 +47,8 @@ git clone https://github.com/gnublin/chef-dbwm.git
  ```
 
 ## Run
+
+# Configure
 
 You should to create a `config/RACK_ENV/config.yml` configuration.
 
@@ -71,9 +72,11 @@ mdb_config:
     project73: /home/user/code/git/project_jane/data_bags
     project0: /home/user/code/git/project_doe/data_bags
   templates_dir:
-    tpl1: /home/user/code/git/chef-dbwm/templates
-    tpl2: templates
+    tpl1: /home/user/code/git/chef-dbwm/templates #absolute path
+    tpl2: templates #relative path from repository
 ```
+
+# Contribution
 
 ## Commit convention ##
 
