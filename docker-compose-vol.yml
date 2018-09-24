@@ -1,0 +1,8 @@
+# docker-compose.vol.yml
+version: '3.0'
+services:
+  web:
+    volumes:
+      - /home/user/git/chef-dbwm/config/development/config.yml:/app/config/development/config.yml
+      - /home/user/git/projects/databags:/app/databags
+      - /home/user/git/projects/templates:/app/templates

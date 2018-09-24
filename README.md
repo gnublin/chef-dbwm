@@ -1,39 +1,103 @@
 [![Build Status](https://travis-ci.org/gnublin/chef-dbwm.svg?branch=master)](https://travis-ci.org/gnublin/chef-dbwm)
 
 # Chef-dbwm
-Chef DataBags Web Manager is an application to manage your databag files.
-This app support the encrypted or not databags in json format.
+Chef DataBags Web Manager is an application to manage your databags files.
+This app support the encrypted or plain databags in json format.
 
 You can run this app on your chef server or locally on your computer.
 
-This app has for vocation to simplify the use of the databags compared to the `knife` command.
-It try all secrets you have set to uncrypte the databag you want to see.
-The databag modification is in increment and only the part of change is modify; that's better to follow changes
+This app has vocation to simplify databags management instead the `knife` command.
+App try all secrets you have registered to uncrypte the databag you want to access.
+The databag modification is concern only the part of changes; that's better to follow changes in versionning repository.
 
-## Requirement
+# Install from GIT
+
+### Requirement
  * bundler (gem install bundler)
  * [npm](https://www.npmjs.com/get-npm)
 
-## Install
- * Clone this repository
+### Prepare
+* Clone this repository
  ```
 git clone https://github.com/gnublin/chef-dbwm.git
  ```
- * Install ruby Gems
+* Install ruby Gems
  ```
 bundle install
  ```
- * Install node modules
+* Install node modules
  ```
 npm install
  ```
 
-## Configure
+### Configure
+Please read the [configure](#configure-2) section
+
+### Run app
+```
+bundle exec rackup -p 8080
+```
+
+# Install from docker
+
+### Prepare
+* Clone this repository
+ ```
+git clone https://github.com/gnublin/chef-dbwm.git
+ ```
+
+### Configure
+
+#### Docker
+
+---
+###### Warn: rackup default is in development mode. Your configuration file should be `config/development/config.yml`
+---
+
+You should to configure the shared volumes.
+
+To manage the sharing, I've create an extra docker-compose file:
+
+Edit the `docker-compose-vol.yml` sample:
+
+```
+# docker-compose-vol.yml
+version: '3.0'
+services:
+  web:
+    volumes:
+      - /path_to/config/development/config.yml:/app/config/development/config.yml
+      - /path_to/databags:/app/databags
+      - /path_to/templates:/app/templates
+```
+
+I think the docker-compose-vol.yml will not be modify in the future. It's in my `.gitignore` file.
+
+#### App
+
+---
+###### Warn: Adapt your App configuration file with your volumes mapping
+---
+
+Please read the [configure](#configure-2) section
+
+## Run
+
+To run this app in docker, you should to run the docker-compose command:
+
+`docker-compose up -f docker-compose.yml -f docker-compose-vol.yml`
+To down this app, you could to use the docker-compose command too:
+
+`docker-compose down`
+
+# Configure
+
 You should to create a `config/RACK_ENV/config.yml` configuration.
+
 Ex: `config/development/config.yml`
 
 ---
-#### Warning: This configuration file is required to run this app.
+###### Warn: This configuration file is required to run this app.
 ---
 
 ```yaml
@@ -49,12 +113,12 @@ mdb_config:
     project42: /home/user/code/git/project_john/data_bags
     project73: /home/user/code/git/project_jane/data_bags
     project0: /home/user/code/git/project_doe/data_bags
+  templates_dir:
+    tpl1: /home/user/code/git/chef-dbwm/templates #absolute path
+    tpl2: templates #relative path from repository
 ```
 
-## Run app
-```
-bundle exec rackup -p 8080
-```
+# Contribution
 
 ## Commit convention ##
 
