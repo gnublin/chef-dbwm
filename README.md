@@ -12,11 +12,11 @@ The databag modification is concern only the part of changes; that's better to f
 
 # Install from GIT
 
-## Requirement
+### Requirement
  * bundler (gem install bundler)
  * [npm](https://www.npmjs.com/get-npm)
 
-## Prepare
+### Prepare
 * Clone this repository
  ```
 git clone https://github.com/gnublin/chef-dbwm.git
@@ -30,36 +30,62 @@ bundle install
 npm install
  ```
 
-## Configure
+### Configure
 Please read the [configure](#configure-2) section
 
-## Run app
+### Run app
 ```
 bundle exec rackup -p 8080
 ```
 
 # Install from docker
 
-## Prepare
+### Prepare
 * Clone this repository
  ```
 git clone https://github.com/gnublin/chef-dbwm.git
  ```
 
-## Configure
+### Configure
+
+#### Docker
+
+---
+###### Warn: rackup default is in development mode. Your configuration file should be `config/development/config.yml`
+---
+
+You should to configure the shared volumes.
+
+To manage the sharing, I've create an extra docker-compose file:
+
+Edit the `docker-compose-vol.yml` sample:
+
+```
+# docker-compose-vol.yml
+version: '3.0'
+services:
+  web:
+    volumes:
+      - /path_to/config/development/config.yml:/app/config/development/config.yml
+      - /path_to/databags:/app/databags
+      - /path_to/templates:/app/templates
+```
+
+I think the docker-compose-vol.yml will not be modify in the future. It's in my `.gitignore` file.
+
+#### App
+
+---
+###### Warn: Adapt your App configuration file with your volumes mapping
+---
 
 Please read the [configure](#configure-2) section
-
-**Warning:**
-* rackup in docker is in development mode. Your configuration file should be `config/development/config.yml`
-* `templates_dir` configuration is mapped in project `templates` dir by default.
 
 ## Run
 
 To run this app in docker, you should to run the docker-compose command:
 
-`docker-compose up` or `docker-compose up -d` to detach docker process
-
+`docker-compose up -f docker-compose.yml -f docker-compose-vol.yml`
 To down this app, you could to use the docker-compose command too:
 
 `docker-compose down`
@@ -71,7 +97,7 @@ You should to create a `config/RACK_ENV/config.yml` configuration.
 Ex: `config/development/config.yml`
 
 ---
-#### Warning: This configuration file is required to run this app.
+###### Warn: This configuration file is required to run this app.
 ---
 
 ```yaml
