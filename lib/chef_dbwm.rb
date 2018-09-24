@@ -237,7 +237,7 @@ class ChefDBWM < Sinatra::Application
   get '/generate_bag' do
     templates_dir = MDB_CONFIG['templates_dir']
     @templates = {}
-    templates_dir.each do |tpl_name, tpl_dir|
+    templates_dir&.each do |tpl_name, tpl_dir|
       @templates[tpl_name] = []
       Dir.entries(tpl_dir).each do |tpl_file|
         next if tpl_file.match?(/^\.$/)
