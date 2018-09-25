@@ -20,7 +20,7 @@ describe 'Other' do
     before { get '/' }
     describe 'Root' do
       it('returns 200 OK') { expect(last_response).to be_ok }
-      it('contain "Databags" ') { expect(last_response.body).to include('Databags') }
+      it('contain "DataBags" ') { expect(last_response.body).to include('DataBags') }
     end
   end
 end

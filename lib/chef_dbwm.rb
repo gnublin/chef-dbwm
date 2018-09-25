@@ -47,12 +47,12 @@ class ChefDBWM < Sinatra::Application
     bags_dir = {}
 
     if params[:path]
-      databag_name, relative_path = params[:path].split(':')
+      data_bag_name, relative_path = params[:path].split(':')
 
-      redirect '/' if databag_name.nil?
+      redirect '/' if data_bag_name.nil?
 
-      base_path = @data_bag_dir[databag_name]
-      bags_dir[databag_name] = {}
+      base_path = @data_bag_dir[data_bag_name]
+      bags_dir[data_bag_name] = {}
 
       unless relative_path.nil?
         base_path = nil if relative_path.match?(%r{^../$})
@@ -66,7 +66,7 @@ class ChefDBWM < Sinatra::Application
           type: 'warning',
           msg: "Path #{params[:path]} not permit.Please check your permission or your configuration file.",
         }
-        redirect "/view?path=#{databag_name}:" unless @data_bag_dir[databag_name].nil?
+        redirect "/view?path=#{data_bag_name}:" unless @data_bag_dir[data_bag_name].nil?
         redirect '/404'
       end
 
@@ -78,21 +78,21 @@ class ChefDBWM < Sinatra::Application
       Dir.entries("#{base_path}/").each do |item|
         next if item.match?(/^\.$/)
         next if item.match?(/^\.\./) && relative_path.nil?
-        bags_dir[databag_name][item] = 'dir' if File.directory?("#{base_path}/#{item}")
-        bags_dir[databag_name][item] = 'file' if File.file?("#{base_path}/#{item}")
+        bags_dir[data_bag_name][item] = 'dir' if File.directory?("#{base_path}/#{item}")
+        bags_dir[data_bag_name][item] = 'file' if File.file?("#{base_path}/#{item}")
       end
       @data_bags = bags_dir
     else
-      @error_message = 'Please specify a good databag'
+      @error_message = 'Please specify a good data bag'
     end
 
-    @databag_path = base_path.gsub(File.realpath(@data_bag_dir[databag_name]), '') unless relative_path.nil?
+    @data_bag_path = base_path.gsub(File.realpath(@data_bag_dir[data_bag_name]), '') unless relative_path.nil?
     slim :view
   end
 
   get '/edit' do
-    databag_name, relative_path = params[:bag_file].split(':')
-    base_path = @data_bag_dir[databag_name]
+    data_bag_name, relative_path = params[:bag_file].split(':')
+    base_path = @data_bag_dir[data_bag_name]
     begin
       file_path = File.realpath("#{base_path}/#{relative_path}") unless relative_path.nil?
     rescue Errno::ENOENT
@@ -138,7 +138,7 @@ class ChefDBWM < Sinatra::Application
       if @error == 1
         @message = {
           type: 'warning',
-          msg: "Private key not found to read encrypted databag '#{File.split(file_path).last}'"
+          msg: "Private key not found to read encrypted data bag '#{File.split(file_path).last}'"
         }
       elsif !@message.nil?
         @message = {type: 'info', msg: "Edit format is #{@format}" } if @error == 0
@@ -174,8 +174,8 @@ class ChefDBWM < Sinatra::Application
       redirect request.referer
     end
 
-    databag_name, relative_path = params[:bag_file].split(':')
-    base_path = @data_bag_dir[databag_name]
+    data_bag_name, relative_path = params[:bag_file].split(':')
+    base_path = @data_bag_dir[data_bag_name]
     bag_file = File.realpath("#{base_path}/#{relative_path}") unless relative_path.nil?
     bag_origin_data = JSON.parse(File.read(bag_file))
 
@@ -189,14 +189,14 @@ class ChefDBWM < Sinatra::Application
       end
       diff_patch = HashDiff.patch!({}, diff_get)
       bag_new_data = Chef::EncryptedDataBagItem.encrypt_data_bag_item(diff_patch, secret)
-      new_databag = bag_origin_data.merge(bag_new_data)
+      new_data_bag = bag_origin_data.merge(bag_new_data)
     else
       diff_get = HashDiff.diff(bag_origin_data, bag_new_data)
-      new_databag = HashDiff.patch!(bag_origin_data, diff_get)
+      new_data_bag = HashDiff.patch!(bag_origin_data, diff_get)
     end
 
     File.open(bag_file, 'w')
-    File.write bag_file, "#{JSON.pretty_generate(new_databag)}\n"
+    File.write bag_file, "#{JSON.pretty_generate(new_data_bag)}\n"
 
     redirect "/edit?bag_file=#{params['bag_file']}"
   end
@@ -206,8 +206,8 @@ class ChefDBWM < Sinatra::Application
   end
 
   post '/create' do
-    databag_name, relative_path = params[:bag_path].split(':')
-    base_path = @data_bag_dir[databag_name]
+    data_bag_name, relative_path = params[:bag_path].split(':')
+    base_path = @data_bag_dir[data_bag_name]
     base_path = "#{base_path}/#{relative_path}" unless relative_path.nil?
     bag_file = "#{base_path}/#{params['file_name']}.json"
     @error = params['content'].empty? ? 2 : 0
@@ -227,10 +227,10 @@ class ChefDBWM < Sinatra::Application
       File.open(bag_file, 'w')
       File.write bag_file, "#{JSON.pretty_generate(data)}\n"
       session[:message] = {type: 'success', msg: "#{params['file_name']}.json has been created successfully" }
-      redirect "/edit?bag_file=#{databag_name}:#{relative_path}/#{params['file_name']}.json"
+      redirect "/edit?bag_file=#{data_bag_name}:#{relative_path}/#{params['file_name']}.json"
     else
       session[:message] = { type: 'error', msg: "File '#{params['file_name']}' is empty or not in JSON format" }
-      redirect "/create?bag_path=#{databag_name}:", 303
+      redirect "/create?bag_path=#{data_bag_name}:", 303
     end
   end
 
@@ -310,8 +310,8 @@ class ChefDBWM < Sinatra::Application
   end
 
   get '/delete' do
-    databag_name, file_name = params[:bag_file].split(':')
-    file_path = @data_bag_dir[databag_name]
+    data_bag_name, file_name = params[:bag_file].split(':')
+    file_path = @data_bag_dir[data_bag_name]
     bag_file = "#{file_path}/#{file_name}"
     begin
       File.delete(bag_file)
@@ -322,7 +322,7 @@ class ChefDBWM < Sinatra::Application
       type = 'error'
     end
     session[:message] = {type: type, msg: msg}
-    redirect "/view?path=#{databag_name}:"
+    redirect "/view?path=#{data_bag_name}:"
   end
 
   get '/' do

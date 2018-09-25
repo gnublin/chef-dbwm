@@ -1,14 +1,14 @@
 [![Build Status](https://travis-ci.org/gnublin/chef-dbwm.svg?branch=master)](https://travis-ci.org/gnublin/chef-dbwm)
 
 # Chef-dbwm
-Chef DataBags Web Manager is an application to manage your databags files.
-This app support the encrypted or plain databags in json format.
+Chef data bags Web Manager is an application to manage your data bags files.
+This app support the encrypted or plain data bags in json format.
 
 You can run this app on your chef server or locally on your computer.
 
-This app has vocation to simplify databags management instead the `knife` command.
-App try all secrets you have registered to uncrypte the databag you want to access.
-The databag modification is concern only the part of changes; that's better to follow changes in versionning repository.
+This app has vocation to simplify data bags management instead the `knife` command.
+App try all secrets you have registered to uncrypte the data bag you want to access.
+The data bag modification is concern only the part of changes; that's better to follow changes in versionning repository.
 
 # Install from GIT
 
@@ -67,7 +67,7 @@ services:
   web:
     volumes:
       - /path_to/config/development/config.yml:/app/config/development/config.yml
-      - /path_to/databags:/app/databags
+      - /path_to/data_bags:/app/data_bags
       - /path_to/templates:/app/templates
 ```
 
@@ -104,11 +104,11 @@ Ex: `config/development/config.yml`
 mdb_config:
   secret_keys_path:
     env1:
-      path: /home/user/databags_keys/secret_env1
+      path: /home/user/data_bags_keys/secret_env1
     env2:
-      path: /home/user/databags_keys/secret_env2
+      path: /home/user/data_bags_keys/secret_env2
     env3:
-      path: /home/user/databags_keys/secret_env3
+      path: /home/user/data_bags_keys/secret_env3
   data_bags_path:
     project42: /home/user/code/git/project_john/data_bags
     project73: /home/user/code/git/project_jane/data_bags
@@ -123,9 +123,8 @@ mdb_config:
 ## Commit convention ##
 
 * feat(#issue): description* when issue is a feature
-* inprovement(#issue): description* when issue is a feature
-* card(#issue): description* when issue is a bug
-* bug(#issue): description* when issue is a card
+* card(#issue): description* when issue is a card
+* bug(#issue): description* when issue is a bug
 * test(card name): description* when you add more commits into issue
 * doc(readme): description* when you want to update readme or other doc
 
