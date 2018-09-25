@@ -325,6 +325,10 @@ class ChefDBWM < Sinatra::Application
     redirect "/view?path=#{data_bag_name}:"
   end
 
+  get '/settings' do
+    slim :settings
+  end
+
   get '/' do
     slim :index
   end
