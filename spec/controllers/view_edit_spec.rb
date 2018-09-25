@@ -28,7 +28,7 @@ describe 'View/Edit' do
     describe '::with parameters' do
       let(:params) { {path: 'main'} }
       it('returns 200 OK') { expect(last_response).to be_ok }
-      it('contain "Databags"') { expect(last_response.body).to include('Databags') }
+      it('contain "DataBags"') { expect(last_response.body).to include('DataBags') }
       it('contain "test1.json"') { expect(last_response.body).to include('test1.json') }
       it('contain "test2.json"') { expect(last_response.body).to include('test2.json') }
       it('doesn\'t contain "test3.json"') { expect(last_response.body).not_to include('test3.json') }
@@ -37,7 +37,7 @@ describe 'View/Edit' do
     describe '::with parameters::sub' do
       let(:params) { {path: 'main:/sub'} }
       it('returns 200 OK') { expect(last_response).to be_ok }
-      it('contain "Databags"') { expect(last_response.body).to include('Databags') }
+      it('contain "DataBags"') { expect(last_response.body).to include('DataBags') }
       it('contain "sub.json"') { expect(last_response.body).to include('sub.json') }
       it('doesn\'t contain "test3.json"') { expect(last_response.body).not_to include('test3.json') }
       it('doesn\'t contain HomePage"') { expect(last_response.body).not_to include('HomePage') }
@@ -66,7 +66,7 @@ describe 'View/Edit' do
       let(:params) { {bag_file: file_wrong_enc} }
       it('returns 200 OK') { expect(last_response).to be_ok }
       it('not contain an error msg') do
-        expect(last_response.body).to include('Private key not found to read encrypted databag')
+        expect(last_response.body).to include('Private key not found to read encrypted data bag')
       end
     end
     describe '::edit::wrong::format' do
