@@ -238,7 +238,6 @@ class ChefDBWM < Sinatra::Application
     templates_dir = MDB_CONFIG['templates_dir']
     @templates = {}
     templates_dir&.each do |tpl_name, tpl_dir|
-      @templates[tpl_name] = []
       Dir.entries(tpl_dir).each do |tpl_file|
         next if tpl_file.match?(/^\.$/)
         next if tpl_file.match?(/^\.\./)
@@ -248,18 +247,27 @@ class ChefDBWM < Sinatra::Application
         rescue JSON::ParserError
           is_json = 1
         end
-        @templates[tpl_name] << tpl_file if is_json == 0
+        if is_json == 0
+          @templates[tpl_name] = [] unless @templates[tpl_name].is_a? Array
+          @templates[tpl_name] << tpl_file
+        end
       end
     end
     if params['template']
       begin
         tpl_dir, tpl_name = params['template'].split(':')
         tpl_file = "#{MDB_CONFIG['templates_dir'][tpl_dir]}/#{tpl_name}"
-        plain_data = JSON.parse(File.read(tpl_file))
-        @error = 0
-      rescue JSON::ParserError
+        read_file = File.read(tpl_file)
+        begin
+          plain_data = JSON.parse(read_file)
+          @error = 0
+        rescue JSON::ParserError
+          @error = 1
+          @message = {type: 'error', msg: 'Selected template is not in JSON format' }
+        end
+      rescue Errno::ENOENT
         @error = 1
-        @message = {type: 'error', msg: 'Selected template is not in JSON format' }
+        @message = {type: 'error', msg: "Template #{params['tempalte']} not found" }
       end
     end
     @json_content = plain_data
@@ -270,7 +278,6 @@ class ChefDBWM < Sinatra::Application
     templates_dir = MDB_CONFIG['templates_dir']
     @templates = {}
     templates_dir.each do |tpl_name, tpl_dir|
-      @templates[tpl_name] = []
       Dir.entries(tpl_dir).each do |tpl_file|
         next if tpl_file.match?(/^\.$/)
         next if tpl_file.match?(/^\.\./)
@@ -280,7 +287,10 @@ class ChefDBWM < Sinatra::Application
         rescue JSON::ParserError
           is_json = 1
         end
-        @templates[tpl_name] << tpl_file if is_json == 0
+        if is_json == 0
+          @templates[tpl_name] = [] unless @templates[tpl_name].is_a? Array
+          @templates[tpl_name] << tpl_file
+        end
       end
     end
     if params['content']
