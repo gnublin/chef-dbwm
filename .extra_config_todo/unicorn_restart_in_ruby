@@ -1,0 +1,7 @@
+pid = fork do
+   Signal.trap("HUP") { puts "Ouch!"; exit }
+   # ... do some work ...
+end
+# ...
+Process.kill("HUP", pid)
+Process.wait
