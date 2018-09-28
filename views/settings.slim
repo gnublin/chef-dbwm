@@ -1,0 +1,12 @@
+// MIT License
+// Copyright (c) 2018 Gauthier FRANCOIS
+=@test
+form action='/settings' method='POST'
+  input.button.uk-button.uk-button-default.uk-background-muted type='submit' value='Save'
+  br
+  .uk-margin
+    label
+      ="content: "
+      textarea.uk-textarea.uk-form-small.uk-height-large name='content' id="form-stacked-text"
+       =@json_content.to_yaml
+  br

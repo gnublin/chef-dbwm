@@ -8,6 +8,7 @@ require 'chef/data_bag_item'
 
 require 'tempfile'
 require 'slim'
+require 'yaml'
 
 require 'sinatra/config_file'
 require 'pry'
@@ -19,7 +20,8 @@ class ChefDBWM < Sinatra::Application
   set :slim, layout: :_layout
   set :public_folder, 'node_modules'
 
-  config_file "config/#{ENV['RACK_ENV']}/config.yml"
+  path_config_file = "config/#{ENV['RACK_ENV']}/config.yml"
+  config_file path_config_file
   MDB_CONFIG = settings.mdb_config
 
   use Rack::Logger
@@ -38,6 +40,7 @@ class ChefDBWM < Sinatra::Application
   end
 
   before do
+    @path_config_file = path_config_file
     @data_bag_dir = MDB_CONFIG['data_bags_path']
     @all_keys = MDB_CONFIG['secret_keys_path']
     @message = session.delete(:message)
@@ -323,6 +326,24 @@ class ChefDBWM < Sinatra::Application
     end
     session[:message] = {type: type, msg: msg}
     redirect "/view?path=#{data_bag_name}:"
+  end
+
+  get '/settings' do
+    @json_content = YAML.safe_load(File.read(@path_config_file))
+    slim :settings
+  end
+
+  post '/settings' do
+    begin
+      @json_content = YAML.safe_load(params['content'])
+      File.open(@path_config_file, 'w')
+      File.write @path_config_file, params['content']
+      session[:message] = {type: 'info', msg: 'Config file saved' }
+    rescue Psych::SyntaxError
+      session[:message] = {type: 'error', msg: 'YAML syntax error' }
+      @json_content = YAML.safe_load(File.read(@path_config_file))
+    end
+    slim :settings
   end
 
   get '/' do

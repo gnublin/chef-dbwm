@@ -101,6 +101,7 @@ Ex: `config/development/config.yml`
 ---
 
 ```yaml
+---
 mdb_config:
   secret_keys_path:
     env1:

@@ -1,8 +1,9 @@
-mdb_config:
-  secret_keys_path:
-    main:
-      path: tests/secret_key
-  data_bags_path:
-    main: tests/data_bags
-  templates_dir:
-    dir1: tests/templates
+---
+  mdb_config:
+    secret_keys_path:
+      main:
+        path: tests/secret_key
+    data_bags_path:
+      main: tests/data_bags
+    templates_dir:
+      dir1: tests/templates
