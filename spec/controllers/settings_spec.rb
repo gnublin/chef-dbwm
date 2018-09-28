@@ -5,7 +5,7 @@ require 'spec_helper'
 require 'chef_dbwm'
 require 'rack/test'
 
-origin_settings ='---
+origin_settings = '---
   mdb_config:
     secret_keys_path:
       main:
@@ -16,7 +16,7 @@ origin_settings ='---
       dir1: tests/templates
 '
 
-modif_settings ='---
+modif_settings = '---
   mdb_config:
     secret_keys_path:
       main:
@@ -42,7 +42,7 @@ describe 'Settings' do
 
   describe 'Post' do
     before { post '/settings', **params }
-    describe '::edit_config' do
+    describe '::edit_bad_config' do
       let(:params) { { content: modif_settings } }
       it('returns 200 OK') { expect(last_response).to be_ok }
       it('contain "dir2" ') { expect(last_response.body).to include('dir2') }
@@ -50,7 +50,7 @@ describe 'Settings' do
       it('contain "---"') { expect(last_response.body).to include('---') }
       it('returns "secret_keys_path"') { expect(last_response.body).to include('secret_keys_path') }
     end
-    describe '::edit_config' do
+    describe '::edit_good_config' do
       let(:params) { { content: origin_settings } }
       it('returns 200 OK') { expect(last_response).to be_ok }
       it('contain "dir1" ') { expect(last_response.body).to include('dir1') }
