@@ -24,7 +24,7 @@ describe 'View/Edit' do
   file_raw_path = 'tests/data_bags/test1.json'
   file_not_exist = 'main:test4242.json'
   describe '::View' do
-    before { get '/view?path=main', **params }
+    before { get '/view', **params }
     describe '::with parameters' do
       let(:params) { {path: 'main'} }
       it('returns 200 OK') { expect(last_response).to be_ok }
