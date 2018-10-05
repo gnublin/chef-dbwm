@@ -353,47 +353,52 @@ class ChefDBWM < Sinatra::Application
 
   post '/search' do
     @search = {}
-    base_path = @data_bag_dir[params['bag_path']]
-    Find.find(base_path) do |file|
-      next if File.directory? file
+    if params['search'].strip.match?(/^[A-Z0-9]+$/i)
+      p params['search']
+      base_path = @data_bag_dir[params['bag_path']]
+      Find.find(base_path) do |file|
+        next if File.directory? file
 
-      read_file = File.open(file).read
-      @error = read_file.include?('null') ? 1 : 0
-      begin
-        encrypted_data = JSON.parse(read_file)
-      rescue JSON::ParserError
-        next
-      end
-
-      bag_status = CheckEncryptedTester.new
-      plain_data = encrypted_data
-      encrypted = bag_status.encrypted?(encrypted_data)
-      secret_keys = @all_keys.map { |_, secret| secret['path'] }
-      error = nil
-
-      if encrypted
-        secret_keys.each do |secret_file|
-          next unless File.exist?(secret_file)
-          secret = Chef::EncryptedDataBagItem.load_secret(secret_file)
-          begin
-            plain_data = Chef::EncryptedDataBagItem.new(encrypted_data, secret).to_hash
-            error = 0
-          rescue StandardError
-            error = 1
-          end
-          break if error == 0
+        read_file = File.open(file).read
+        @error = read_file.include?('null') ? 1 : 0
+        begin
+          encrypted_data = JSON.parse(read_file)
+        rescue JSON::ParserError
+          next
         end
+
+        bag_status = CheckEncryptedTester.new
+        plain_data = encrypted_data
+        encrypted = bag_status.encrypted?(encrypted_data)
+        secret_keys = @all_keys.map { |_, secret| secret['path'] }
+        error = nil
+
+        if encrypted
+          secret_keys.each do |secret_file|
+            next unless File.exist?(secret_file)
+            secret = Chef::EncryptedDataBagItem.load_secret(secret_file)
+            begin
+              plain_data = Chef::EncryptedDataBagItem.new(encrypted_data, secret).to_hash
+              error = 0
+            rescue StandardError
+              error = 1
+            end
+            break if error == 0
+          end
+        end
+        next if error == 1
+        file_grep = []
+        file_lines = JSON.pretty_generate(plain_data).split("\n").map { |line| line.split('\\n') }.flatten
+        file_lines.each_with_index do |a, b|
+          next unless a.match?(/#{params['search'].strip}/)
+          html_s = a.gsub(params['search'].strip, "<strong class='uk-text-primary'>#{params['search'].strip}</strong>")
+          file_grep << {line: b + 1, string: html_s }
+        end
+        next if file_grep.empty?
+        @search["#{params['bag_path']}#{file.gsub(base_path, ':')}"] = file_grep
       end
-      next if error == 1
-      file_grep = []
-      file_lines = JSON.pretty_generate(plain_data).split("\n").map { |line| line.split('\\n') }.flatten
-      file_lines.each_with_index do |a, b|
-        next unless a.match?(/#{params['search']}/)
-        html_s = a.gsub(params['search'], "<strong class='uk-text-primary'>#{params['search']}</strong>")
-        file_grep << {line: b + 1, string: html_s }
-      end
-      next if file_grep.empty?
-      @search["#{params['bag_path']}#{file.gsub(base_path, ':')}"] = file_grep
+    else
+      @message = {type: 'error', msg: 'Only alphanumeric search' }
     end
     slim :search
   end
