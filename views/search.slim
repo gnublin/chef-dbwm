@@ -1,0 +1,26 @@
+// MIT License
+// Copyright (c) 2018 Gauthier FRANCOIS
+form action='/search' method='POST'
+  .uk-margin
+    ="Bag name: "
+    . uk-form-custom="target: > * > span:first-child"
+      select# name="bag_path"
+        -@data_bag_dir.each_key do |name|
+          -if name == params['bag_path']
+            option value="#{name}" selected="selected" = name
+          -else
+            option value="#{name}" = name
+      button class="uk-button uk-button-default" type="button" tabindex="-1"
+        span
+        span uk-icon="icon: chevron-down"
+  input.uk-input.uk-form-width-medium type="text" name='search' value="#{params['search'] if params['search']}"
+  input.button.uk-button.uk-button-default.uk-background-primary type='submit'
+
+-if @search
+  -@search.each do |file, findings|
+    ul.uk-list.uk-list-divider
+      li
+        a href="/edit?bag_file=#{file}" ="#{file}"
+      -findings.each do |finding|
+        ul.uk-list.uk-list-striped
+          il ="line #{finding[:line]}: #{finding[:string]}".html_safe
