@@ -14,7 +14,7 @@ form action='/search' method='POST'
         span
         span uk-icon="icon: chevron-down"
   input.uk-input.uk-form-width-medium type="text" name='search' value="#{params['search'] if params['search']}"
-  input.button.uk-button.uk-button-default.uk-background-primary type='submit'
+  input.button.uk-button.uk-button-default.uk-background-primary type='submit' value='search'
 
 -if @search
   -@search.each do |file, findings|
