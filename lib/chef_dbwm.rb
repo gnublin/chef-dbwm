@@ -354,7 +354,6 @@ class ChefDBWM < Sinatra::Application
   post '/search' do
     @search = {}
     if params['search'].strip.match?(/^[A-Z0-9]+$/i)
-      p params['search']
       base_path = @data_bag_dir[params['bag_path']]
       Find.find(base_path) do |file|
         next if File.directory? file
