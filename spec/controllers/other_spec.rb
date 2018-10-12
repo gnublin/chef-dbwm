@@ -26,8 +26,8 @@ describe 'Other' do
       it('contain "Settings" ') { expect(last_response.body).to include('Settings') }
       it('contain "Github" ') { expect(last_response.body).to include('On Github project') }
       it('contain "github class" ') { expect(last_response.body).to include('class="fab fa-github') }
-      it('contain "Open issue" ') { expect(last_response.body).to include('target="blank">Open issue</a>') }
-      it('contain "LICENSE" ') { expect(last_response.body).to include('LICENSE" target="blank">MIT License</a>') }
+      it('contain "Open issue" ') { expect(last_response.body).to include('target="_blank">Open issue</a>') }
+      it('contain "LICENSE" ') { expect(last_response.body).to include('LICENSE" target="_blank">MIT License</a>') }
     end
   end
 end
