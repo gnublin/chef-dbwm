@@ -9,6 +9,7 @@ SEARCH_ENC = '42'
 SEARCH_RAW = '73'
 SEARCH_ERR = '73{'
 SEARCH_TO_STRIP = ' 73'
+SEARCH_WITH_SPACE = 'orange black'
 
 describe 'search' do
   include Rack::Test::Methods
@@ -56,6 +57,14 @@ describe 'search' do
       it('returns 200 OK') { expect(last_response).to be_ok }
       it('contain test1.json') { expect(last_response.body).to include('main:/test1.json') }
       it('contain 73 without space') { expect(last_response.body).to include('>73</strong>') }
+      it('main selected') { expect(last_response.body).to include('<option selected="selected" value="main">main') }
+    end
+    describe '::with_parameters_with_space' do
+      let(:params) { {bag_path: 'main', search: SEARCH_WITH_SPACE} }
+      it('returns 200 OK') { expect(last_response).to be_ok }
+      it('contain test42.json') { expect(last_response.body).to include('main:/test42.json') }
+      it('contain orange black') { expect(last_response.body).to include('>orange black</strong>') }
+      it('contain other_color') { expect(last_response.body).to include('other_color') }
       it('main selected') { expect(last_response.body).to include('<option selected="selected" value="main">main') }
     end
   end
