@@ -9,22 +9,37 @@ html
     link href="@fortawesome/fontawesome-free/css/all.css" rel='stylesheet' type='text/css'
   body
     nav.uk-navbar.uk-navbar-container.uk-margin-bottom uk-navbar=""
+      .uk-offcanvas-content.uk-position-top-right.uk-padding-small
+        a.fab.fa-github-square.uk-link-reset style="font-size: 3em" href="#offcanvas-usage" uk-toggle=""
+        div id="offcanvas-usage" uk-offcanvas="flip: true; overlay: true"
+          .uk-offcanvas-bar
+            button.uk-offcanvas-close type="button" uk-close=""
+            h3 ="On Github project"
+            ul
+              li
+                a href="https://github.com/gnublin/chef-dbwm/issues" target="_blank" ="Open issue"
+              li
+                a href="https://github.com/gnublin/chef-dbwm/projects/2" target="_blank" = "Project"
+              li
+                a href="https://github.com/gnublin/chef-dbwm/blob/master/README.md" target="_blank" ="Readme"
+              li
+                a href="https://github.com/gnublin/chef-dbwm/blob/master/LICENSE" target="_blank" = "MIT License"
       a.uk-navbar-item.uk-logo.uk-margin-large-right href='/' Home
       .uk-navbar-left
         ul.uk-navbar-nav
           li
-            a href="#" DataBags
+            a.uk-text-capitalize href="#" DataBags
             .uk-navbar-dropdown
               ul.uk-nav.uk-navbar-dropdown-nav
                 - @data_bag_dir.each_key do |dir|
-                  li: a href="/view?path=#{dir}"= dir
+                  li: a.uk-text-capitalize href="/view?path=#{dir}"= dir
           li
-            a href="/generate_bag" Generate
+            a.uk-text-capitalize href="/generate_bag" Generate
           li
-            a href="/search" Search
+            a.uk-text-capitalize href="/search" Search
           li
-            a href="/settings" Settings
-    div.uk-container.uk-container-large.uk-position-relative
+            a.uk-text-capitalize href="/settings" Settings
+    .uk-container.uk-container-large.uk-position-relative uk-height-viewport="expand: true"
       - if @message
         - if @message[:type] == 'error'
           .uk-alert-danger = @message[:msg]
@@ -35,5 +50,10 @@ html
         - else
           .uk-alert-primary = @message[:msg]
       == yield
+    .uk-container.uk-container-expand.uk-background-muted.uk-text-center.uk-container-small
+        = "Gauthier FRANÇOIS"
+        a.uk-link-reset.uk-padding-small.uk-padding-remove-top.uk-padding-remove-bottom target="_blank" href="https://github.com/gnublin/chef-dbwm/blob/master/LICENSE" = "MIT License"
+        a.fab.fa-github.uk-link-reset.uk-padding-small.uk-padding-remove-top.uk-padding-remove-bottom target="_blank" href="https://github.com/gnublin/chef-dbwm/"
+        a.fab.fa-linkedin-in.uk-link-reset.uk-padding-small.uk-padding-remove-top.uk-padding-remove-bottom target="_blank" href="https://www.linkedin.com/in/gafrancois/"
     script src="/uikit/dist/js/uikit.min.js" type="text/javascript"
     script src="/uikit/dist/js/uikit-icons.min.js" type="text/javascript"

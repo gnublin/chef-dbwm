@@ -24,6 +24,10 @@ describe 'Other' do
       it('contain "Generate" ') { expect(last_response.body).to include('Generate') }
       it('contain "Search" ') { expect(last_response.body).to include('Search') }
       it('contain "Settings" ') { expect(last_response.body).to include('Settings') }
+      it('contain "Github" ') { expect(last_response.body).to include('On Github project') }
+      it('contain "github class" ') { expect(last_response.body).to include('class="fab fa-github') }
+      it('contain "Open issue" ') { expect(last_response.body).to include('target="_blank">Open issue</a>') }
+      it('contain "LICENSE" ') { expect(last_response.body).to include('LICENSE" target="_blank">MIT License</a>') }
     end
   end
 end
