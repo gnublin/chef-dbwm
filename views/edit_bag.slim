@@ -25,13 +25,15 @@
       ="Content:"
       textarea.uk-textarea.uk-form-small.uk-height-large.uk-background-muted disabled='true' name="content" id="disabled_input" ="#{JSON.pretty_generate(@plain_data)}"
     - else
+      br/
       - @plain_data.keys.each_with_index do |item_name, item_idx|
         - item_data = @plain_data[item_name]
-        code.uk-position-absolute
-          a.cl-edit-anchor id="#{item_idx+1}"
-        div.uk-padding-large.uk-padding-remove-top.uk-padding-remove-bottom
-          = "#{item_name}: "
-        div.uk-padding-large.uk-padding-remove-top.uk-padding-remove-bottom
+        code.uk-position-absolute.uk-text-muted.uk-background-muted
+        .uk-padding-large.uk-padding-remove-top.uk-padding-remove-bottom
+          div.uk-background-default
+            a.cl-edit-anchor id="#{item_idx+1}"
+            = "#{item_name}: "
+        .uk-padding-large.uk-padding-remove-top.uk-padding-remove-bottom.uk-margin-small-bottom
           - if item_data.to_s.length > 200
             textarea.uk-textarea.uk-form-small.uk-height-large.uk-background-muted disabled='true' name="#{@plain_data['id']}_#{item_name}" id="disabled_input" = "#{item_data}"
           - else
@@ -44,7 +46,7 @@
           a.uk-button.uk-button-danger type="button" href="/delete?bag_file=#{params[:bag_file]}" Delete
 
 javascript:
-  function manage_active(id_sel){
+  function manage_active(id_sel) {
     document.querySelectorAll(id_sel).forEach(
        function(a){
          if (a.getAttribute('disabled') == 'true') {
@@ -61,11 +63,23 @@ javascript:
     )
   }
 
+  var anchor_location = location.hash.substring(1);
+  if ( anchor_location != '' ) {
+    console.log(anchor_location);
+    anchor_el = document.getElementById(anchor_location).parentNode;
+    anchor_el.classList.add('cl-background-light');
+  }
+
 css:
-  code{
+  .cl-background-light {
+    background-color: skyblue;
+
+  }
+
+  code {
     counter-increment: line;
   }
-  code:before{
+  code:before {
     content: counter(line);
   }
   .cl-edit-anchor {
