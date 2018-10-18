@@ -353,7 +353,9 @@ class ChefDBWM < Sinatra::Application
 
   post '/search' do
     @search = {}
-    if params['search'].strip.match?(/^[A-Z0-9\ ]+$/i)
+    case_sensitive = params['case_sensitive'] == 'on'
+    search_string = params['search'].strip
+    if search_string.match?(/^[A-Z0-9\ -_]+$/i)
       base_path = @data_bag_dir[params['bag_path']]
       Find.find(base_path) do |file|
         next if File.directory? file
@@ -387,11 +389,28 @@ class ChefDBWM < Sinatra::Application
         end
         next if error == 1
         file_grep = []
-        file_lines = JSON.pretty_generate(plain_data).split("\n").map { |line| line.split('\\n') }.flatten
-        file_lines.each_with_index do |a, b|
-          next unless a.match?(/#{params['search'].strip}/)
-          html_s = a.gsub(params['search'].strip, "<strong class='uk-text-primary'>#{params['search'].strip}</strong>")
-          file_grep << {line: b + 1, string: html_s }
+        ordered_data = {'id' => plain_data.delete('id')}
+        plain_data = ordered_data.merge(Hash[plain_data.sort])
+        search_string = "(?i:#{search_string})" if case_sensitive
+        plain_data.keys.each_with_index do |a, b|
+          string_matched = ''
+          matched = false
+          scan_key = a.scan(/#{search_string}/)
+          scan_data = plain_data[a].to_s.scan(/#{search_string}/)
+          unless scan_key.empty?
+            string_matched = "#{a}: "
+            matched = true
+          end
+          unless scan_data.empty?
+            string_matched = "#{a}: " + plain_data[a].to_s
+            matched = true
+          end
+          next unless matched
+          (scan_key + scan_data).uniq.each do |match_string|
+            string_matched =
+              string_matched.gsub(match_string, "<strong class='uk-text-primary'>#{match_string}</strong>")
+          end
+          file_grep << {line: b + 1, string: string_matched }
         end
         next if file_grep.empty?
         @search["#{params['bag_path']}#{file.gsub(base_path, ':')}"] = file_grep

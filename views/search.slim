@@ -13,6 +13,8 @@ form action='/search' method='POST'
       button class="uk-button uk-button-default" type="button" tabindex="-1"
         span
         span uk-icon="icon: chevron-down"
+  input.uk-checkbox type="checkbox" name="case_sensitive" checked=true =" case sensitive"
+  br/
   input.uk-input.uk-form-width-medium type="text" name='search' value="#{params['search'] if params['search']}"
   input.button.uk-button.uk-button-default.uk-background-primary type='submit' value='search'
 
@@ -20,7 +22,11 @@ form action='/search' method='POST'
   -@search.each do |file, findings|
     ul.uk-list.uk-list-divider
       li
-        a href="/edit?bag_file=#{file}" ="#{file}"
+        a href="/edit?bag_file=#{file}&format=form" ="#{file}"
       -findings.each do |finding|
         ul.uk-list.uk-list-striped
-          il ="line #{finding[:line]}: #{finding[:string]}".html_safe
+          li
+            a href="/edit?bag_file=#{file}&format=form##{finding[:line]}" ="line #{finding[:line]}"
+            =": "
+            br/
+            ="#{finding[:string]}".html_safe
