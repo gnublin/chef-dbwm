@@ -15,6 +15,9 @@ require 'sinatra/config_file'
 require 'pry'
 require 'hashdiff'
 
+require_relative 'helpers.rb'
+require_relative 'encrypted.rb'
+
 class ChefDBWM < Sinatra::Application
   register Sinatra::ConfigFile
   set :root, File.dirname(__FILE__) + '/..'
@@ -36,10 +39,6 @@ class ChefDBWM < Sinatra::Application
   end
   Bundler.require
 
-  class CheckEncryptedTester
-    include Chef::EncryptedDataBagItem::CheckEncrypted
-  end
-
   before do
     @path_config_file = path_config_file
     @data_bag_dir = MDB_CONFIG['data_bags_path']
@@ -55,18 +54,19 @@ class ChefDBWM < Sinatra::Application
 
       redirect '/' if data_bag_name.nil?
 
-      base_path = @data_bag_dir[data_bag_name]
+      base_path = File.realpath(@data_bag_dir[data_bag_name])
       bags_dir[data_bag_name] = {}
 
-      unless relative_path.nil?
-        base_path = nil if relative_path.match?(%r{^../$})
-        base_path = nil if relative_path.match?(/^\.\./)
-        base_path = nil if relative_path.match?(%r{^/\.\.})
-        base_path = nil if relative_path.match?(%r{/^!//})
+      begin
+        bag_path = File.realpath("#{base_path}#{relative_path}")
+        base_diff = bag_path.gsub(base_path, '')
+        base_path = base_diff == bag_path ? nil : bag_path
+      rescue Errno::ENOENT
+        redirect '/404'
       end
 
       if base_path.nil?
-        @message = {
+        session[:message] = {
           type: 'warning',
           msg: "Path #{params[:path]} not permit.Please check your permission or your configuration file.",
         }
@@ -74,16 +74,11 @@ class ChefDBWM < Sinatra::Application
         redirect '/404'
       end
 
-      begin
-        base_path = File.realpath("#{base_path}#{relative_path}")
-      rescue Errno::ENOENT
-        redirect '/404'
-      end
       Dir.entries("#{base_path}/").each do |item|
         next if item.match?(/^\.$/)
         next if item.match?(/^\.\./) && relative_path.nil?
-        bags_dir[data_bag_name][item] = 'dir' if File.directory?("#{base_path}/#{item}")
-        bags_dir[data_bag_name][item] = 'file' if File.file?("#{base_path}/#{item}")
+        next if item.match?(/^\.\./) && base_diff.empty?
+        bags_dir[data_bag_name][item] = File.directory?("#{base_path}/#{item}") ? 'dir' : 'file'
       end
       @data_bags = bags_dir
     else
@@ -95,64 +90,52 @@ class ChefDBWM < Sinatra::Application
   end
 
   get '/edit' do
+    @secret_file_used = ''
+    @format = 'form'
+
     data_bag_name, relative_path = params[:bag_file].split(':')
     base_path = @data_bag_dir[data_bag_name]
-    begin
-      file_path = File.realpath("#{base_path}/#{relative_path}") unless relative_path.nil?
-    rescue Errno::ENOENT
-      redirect '/404'
-    end
+
+    file_path = Helpers.real_path(base_path, relative_path)
+    redirect '/404' if file_path.nil?
+
+    read_file = Helpers.read_file(file_path)
+    redirect '/404' if read_file.nil?
 
     secret_keys = @all_keys.map { |_, secret| secret['path'] }
-    @format = 'form'
-    read_file = File.read(file_path)
-    @error = read_file.include?('null') ? 1 : 0
-    begin
-      encrypted_data = JSON.parse(read_file)
-    rescue JSON::ParserError
-      @error = 2
-    end
+
+    @plain_data = ReadFile.json_parse(read_file)
+    @error = @plain_data == 2 ? 2 : 0
     bag_status = CheckEncryptedTester.new
-    @plain_data = encrypted_data
-    @encrypted = @error == 0 ? bag_status.encrypted?(encrypted_data) : false
+    @encrypted = @error == 0 ? bag_status.encrypted?(@plain_data) : false
 
     case @error
     when 0
       @secret_file_used = ''
-      if @encrypted
-        secret_keys.each do |secret_file|
-          next unless File.exist?(secret_file)
-          secret = Chef::EncryptedDataBagItem.load_secret(secret_file)
-          begin
-            @plain_data = Chef::EncryptedDataBagItem.new(encrypted_data, secret).to_hash
-            @error = 0
-          rescue StandardError
-            @error = 1
-          end
-          @secret_file_used = secret_file
-          break if @error == 0
-        end
-      end
-      type = @plain_data.map { |_, val| val.class }
-      msg = type.include?(Hash) ? 'json' : 'form'
-      @format = params['format'] ? params['format'] : msg
-      @format_link = @format == 'json' ? 'form' : 'json'
-      @ordered_data = {'id' => @plain_data.delete('id')}
-      @plain_data = @ordered_data.merge(Hash[@plain_data.sort])
+      @plain_data, @secret_file_used, @error = ReadFile.decrypt_db(@plain_data, secret_keys, 'hash') if @encrypted
       if @error == 1
         @message = {
           type: 'warning',
           msg: "Private key not found to read encrypted data bag '#{File.split(file_path).last}'"
         }
-      elsif !@message.nil?
+      else
+        type = @plain_data.map { |_, val| val.class }
+        msg = type.include?(Hash) ? 'json' : 'form'
+        @format = params['format'] ? params['format'] : msg
+        @format_link = @format == 'json' ? 'form' : 'json'
+        @ordered_data = {'id' => @plain_data.delete('id')}
+        @plain_data = @ordered_data.merge(Hash[@plain_data.sort])
         @message = {type: 'info', msg: "Edit format is #{@format}" } if @error == 0
       end
     when 1
       @error = 0
       @plain_data = '' if @plain_data.nil?
       @format = 'json'
-      @message = {type: 'info', msg: 'Default edition format is json' }
+      session[:message] = {type: 'info', msg: 'Default edition format is json' }
     when 2
+      @error = 0
+      @plain_data = ''
+      @format = 'json'
       @message = {type: 'error', msg: "File '#{File.split(params[:bag_file]).last}' is not in JSON format" }
     end
     slim :edit_bag
@@ -163,14 +146,10 @@ class ChefDBWM < Sinatra::Application
     bag_new_data = {}
 
     if params['format'] == 'json'
-      begin
-        bag_new_data = JSON.parse(params['content'])
-      rescue JSON::ParserError
-        @error = 2
-      end
+      bag_new_data = ReadFile.json_parse(params['content'])
     else
       params.select { |param| param.match(/#{params['__id']}/) }.map do |param, val|
-        bag_new_data[param.gsub(/#{params['__id']}_/, '')] = val
+        bag_new_data[param.gsub(/#{params['__id']}_/, '')] = val.gsub(/\r\n/, "\n")
       end
     end
     if @error != 0
@@ -181,17 +160,17 @@ class ChefDBWM < Sinatra::Application
     data_bag_name, relative_path = params[:bag_file].split(':')
     base_path = @data_bag_dir[data_bag_name]
     bag_file = File.realpath("#{base_path}/#{relative_path}") unless relative_path.nil?
-    bag_origin_data = JSON.parse(File.read(bag_file))
+    bag_origin_data = ReadFile.json_parse(File.read(bag_file))
 
     if params['encrypted'] == 'true'
-      secret = Chef::EncryptedDataBagItem.load_secret(params['secret_key'])
-      bag_origin_data_enc = Chef::EncryptedDataBagItem.new(bag_origin_data, secret).to_hash
+      bag_origin_data_enc, _, @error = ReadFile.decrypt_db(bag_origin_data, [params['secret_key']], 'hash')
       diff_get = HashDiff.diff(bag_origin_data_enc, bag_new_data, array_path: true)
       diff_get.each do |diff|
         next if diff.first != '-'
         bag_origin_data.delete(diff[1].first)
       end
       diff_patch = HashDiff.patch!({}, diff_get)
+      secret = Chef::EncryptedDataBagItem.load_secret(params['secret_key'])
       bag_new_data = Chef::EncryptedDataBagItem.encrypt_data_bag_item(diff_patch, secret)
       new_data_bag = bag_origin_data.merge(bag_new_data)
     else
@@ -209,21 +188,48 @@ class ChefDBWM < Sinatra::Application
     slim :create_bag
   end
 
+  post '/create_dir' do
+    error = 0
+    type = 'success'
+    data_bag_name, relative_path = params[:bag_path].split(':')
+    base_path = @data_bag_dir[data_bag_name]
+    base_path = "#{base_path}/#{relative_path}" unless relative_path.nil?
+    dir_name = "#{base_path}/#{params[:dir_name]}"
+
+    if params[:dir_name].empty?
+      error = 'Name is required'
+      type = 'error'
+    elsif File.exist?(dir_name)
+      error = "Name #{params[:bag_path]}/#{params[:dir_name]} already exist"
+      type = 'error'
+    end
+
+    Dir.mkdir(dir_name) if error == 0
+    error = "Dir #{params[:bag_path]}/#{params[:dir_name]} has been  r ecreated" if error == 0
+
+    session[:message] = {type: type, msg: error }
+    redirect "/view?path=#{params[:bag_path]}"
+  end
+
   post '/create' do
+    error = 0
     data_bag_name, relative_path = params[:bag_path].split(':')
     base_path = @data_bag_dir[data_bag_name]
     base_path = "#{base_path}/#{relative_path}" unless relative_path.nil?
     bag_file = "#{base_path}/#{params['file_name']}.json"
-    @error = params['content'].empty? ? 2 : 0
-    begin
-      data = JSON.parse(params['content'])
-      @error = 0
-    rescue JSON::ParserError
-      @error = 1
+    error = "File '#{params['file_name']}' or not in JSON format" if params['content'].empty?
+    data = ReadFile.json_parse(params['content']) if error == 0
+    error = data if data == 2
+    if error != 0
       session[:message] = {type: 'error', msg: 'Content field is not in JSON format' }
+    elsif params['file_name'].empty?
+      error = 'Name field is required'
+    elsif data.nil?
+      error = 'Content field is required. id key is required too!'
+    elsif data['id'].nil?
+      error = 'id key is required'
     end
-
-    if @error == 0
+    if error == 0
       if params['encrypted'] != 'raw'
         secret = Chef::EncryptedDataBagItem.load_secret(params['encrypted'])
         data = Chef::EncryptedDataBagItem.encrypt_data_bag_item(data, secret)
@@ -233,7 +239,7 @@ class ChefDBWM < Sinatra::Application
       session[:message] = {type: 'success', msg: "#{params['file_name']}.json has been created successfully" }
       redirect "/edit?bag_file=#{data_bag_name}:#{relative_path}/#{params['file_name']}.json"
     else
-      session[:message] = { type: 'error', msg: "File '#{params['file_name']}' is empty or not in JSON format" }
+      session[:message] = { type: 'error', msg: error }
       redirect "/create?bag_path=#{data_bag_name}:", 303
     end
   end
@@ -303,7 +309,7 @@ class ChefDBWM < Sinatra::Application
         @error = 0
       rescue JSON::ParserError
         @error = 1
-        session[:message] = {type: 'error', msg: 'Content field is not in JSON format' }
+        @message = {type: 'error', msg: 'Content field is not in JSON format' }
       end
       secret = Chef::EncryptedDataBagItem.load_secret(params['encrypted'])
     end
@@ -318,15 +324,15 @@ class ChefDBWM < Sinatra::Application
     file_path = @data_bag_dir[data_bag_name]
     bag_file = "#{file_path}/#{file_name}"
     begin
-      File.delete(bag_file)
-      msg = "#{file_name} has been delete."
+      FileUtils.rm_r(bag_file)
+      msg = "#{params[:bag_file]} has been deleted."
       type = 'success'
     rescue StandardError
       msg = "An error occured to delete #{file_name}"
       type = 'error'
     end
     session[:message] = {type: type, msg: msg}
-    redirect "/view?path=#{data_bag_name}:"
+    redirect "/view?path=#{data_bag_name}:#{file_name.split('/')[0...-1].join('/')}"
   end
 
   get '/settings' do

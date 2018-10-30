@@ -1,7 +1,10 @@
 // MIT License
 // Copyright (c) 2018 Gauthier FRANCOIS
 -@data_bags.each do |bag_name, data_item|
-  a.button.uk-button.uk-button-default.uk-background-muted href="create?bag_path=#{bag_name}:" Create
+  a.button.uk-button.uk-button-default.uk-background-primary href="create?bag_path=#{params['path']}" Create file
+  a.uk-button.uk-button-default.uk-background-primary uk-toggle="target: #modal-create_dir" Create dir
+  a.uk-button.uk-button-default.uk-button-danger.uk-background-secondary uk-toggle="target: #modal-delete_dir" Delete dir
+
   ul.uk-breadcrumb
     li
       a =""
@@ -16,3 +19,18 @@
         li: a.far.fa-folder href="?path=#{bag_name}:#{@data_bag_path}/#{item[0]}"= " #{item[0]}"
       -else
         li: a.far.fa-file href="/edit?bag_file=#{bag_name}:#{@data_bag_path}/#{item[0]}"= " #{item[0]}"
+
+  .uk-modal id="modal-create_dir" uk-modal=""
+    .uk-modal-dialog.uk-modal-body
+        h2.uk-modal-title = "Name of dir?"
+        form action="/create_dir" method="POST"
+          input.uk-input.uk-form-small.uk-background-default name="dir_name"
+          input type="hidden" name="bag_path" value="#{bag_name}:#{@data_bag_path}"
+          button.uk-button.uk-button-default.uk-modal-close type="button" Cancel
+          input.button.uk-button.uk-button-default.uk-background-muted type="submit" value="Create"
+
+  .uk-modal id="modal-delete_dir" uk-modal=""
+    .uk-modal-dialog.uk-modal-body
+      h2.uk-modal-title = "Are you sure you want to delete this directory and all element which contains?"
+      button.uk-button.uk-button-default.uk-modal-close type="button" Cancel
+      a.uk-button.uk-button-danger type="button" href="/delete?bag_file=#{bag_name}:#{@data_bag_path}" Delete

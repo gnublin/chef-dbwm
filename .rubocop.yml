@@ -6,6 +6,9 @@ AllCops:
     - vendor/**/*
   TargetRubyVersion: 2.4
 
+Style/NegatedIf:
+  Enabled: false
+
 Naming/AccessorMethodName:
   Enabled: false
 Style/NumericLiteralPrefix:
