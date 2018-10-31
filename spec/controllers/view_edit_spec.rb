@@ -26,27 +26,37 @@ describe 'View/Edit' do
   describe '::View' do
     before { get '/view', **params }
     describe '::with parameters' do
-      let(:params) { {path: 'main'} }
+      let(:params) { {path: 'main:/'} }
       it('returns 200 OK') { expect(last_response).to be_ok }
       it('contain "DataBags"') { expect(last_response.body).to include('DataBags') }
       it('contain "test1.json"') { expect(last_response.body).to include('test1.json') }
       it('contain "test2.json"') { expect(last_response.body).to include('test2.json') }
       it('doesn\'t contain "test3.json"') { expect(last_response.body).not_to include('test3.json') }
-      it('doesn\'t contain HomePage"') { expect(last_response.body).not_to include('HomePage') }
+      it('doesn\'t contain "/.."') { expect(last_response.body).not_to include('/..') }
+      it('does contain Home"') { expect(last_response.body).to include('Home') }
     end
     describe '::with parameters::sub' do
       let(:params) { {path: 'main:/sub'} }
       it('returns 200 OK') { expect(last_response).to be_ok }
       it('contain "DataBags"') { expect(last_response.body).to include('DataBags') }
       it('contain "sub.json"') { expect(last_response.body).to include('sub.json') }
+      it('does contain "/.."') { expect(last_response.body).not_to include(':/..') }
       it('doesn\'t contain "test3.json"') { expect(last_response.body).not_to include('test3.json') }
-      it('doesn\'t contain HomePage"') { expect(last_response.body).not_to include('HomePage') }
+      it('does contain Home"') { expect(last_response.body).to include('Home') }
     end
-    describe '::with parameters::tweak_path' do
+    describe '::with parameters::tweak_path1' do
       let(:params) { {path: 'main:../'} }
       it('returns 301 OK') { expect(last_response).to be_redirect }
       it('doesn\'t contain "test1.json"') { expect(last_response.body).not_to include('test1.json') }
-      it('contain HomePage') { expect(last_response.body).not_to include('HomePage') }
+      it('doesn\'t contain "/.."') { expect(last_response.body).not_to include(':/..') }
+      it('contain Home') { expect(last_response.body).not_to include('Home') }
+    end
+    describe '::with parameters::tweak_path2' do
+      let(:params) { {path: 'main:/sub/..'} }
+      it('returns 200 OK') { expect(last_response).to be_ok }
+      it('does contain "test3.json"') { expect(last_response.body).to include('test1.json') }
+      it('doesn\'t contain "/.."') { expect(last_response.body).not_to include(':/..') }
+      it('contain Home') { expect(last_response.body).to include('Home') }
     end
     describe '::with parameters::wrong path' do
       let(:params) { {path: 'main:/test/dsq42'} }
@@ -65,7 +75,7 @@ describe 'View/Edit' do
     describe '::edit::wrong::key' do
       let(:params) { {bag_file: file_wrong_enc} }
       it('returns 200 OK') { expect(last_response).to be_ok }
-      it('not contain an error msg') do
+      it('contain an error msg') do
         expect(last_response.body).to include('Private key not found to read encrypted data bag')
       end
     end

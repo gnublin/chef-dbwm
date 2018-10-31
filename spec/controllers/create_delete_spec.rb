@@ -12,6 +12,7 @@ DATA_BAG = '
   "number": 42
 }
 '
+DIR = 'dir1'
 
 describe 'Create/Delete' do
   include Rack::Test::Methods
@@ -19,7 +20,30 @@ describe 'Create/Delete' do
 
   file = 'tests/data_bags/test3.json'
 
-  describe '::create' do
+  describe 'create_dir' do
+    before { post '/create_dir', **params }
+    describe '::dir1' do
+      let(:params) do
+        {
+          bag_path: 'main:',
+          dir_name: DIR,
+        }
+      end
+      it('returns redirect') { expect(last_response.status).to eq(302) }
+      it('dir1 exist') { expect(File).to exist('tests/data_bags/dir1') }
+    end
+    describe '::dir1::already_exist' do
+      let(:params) do
+        {
+          bag_path: 'main:',
+          dir_name: DIR,
+        }
+      end
+      it('returns redirect') { expect(last_response.status).to eq(302) }
+    end
+  end
+
+  describe '::file' do
     before { post '/create', **params }
     describe '::create::valid' do
       let(:params) do
@@ -63,12 +87,23 @@ describe 'Create/Delete' do
 
   describe '::delete' do
     before { get '/delete', **params }
-    let(:params) do
-      {
-        bag_file: 'main:test3.json',
-      }
+    describe '::file' do
+      let(:params) do
+        {
+          bag_file: 'main:test3.json',
+        }
+      end
+      it('returns redirect') { expect(last_response).to be_redirect }
+      it('test3.json has been deleted') { expect(File).not_to exist(file) }
     end
-    it('returns redirect') { expect(last_response).to be_redirect }
-    it('test3.json has been deleted') { expect(File).not_to exist(file) }
+    describe '::dir' do
+      let(:params) do
+        {
+          bag_file: "main:#{DIR}",
+        }
+      end
+      it('returns redirect') { expect(last_response.status).to eq(302) }
+      it('dir1 not exist') { expect(File).not_to exist('tests/data_bags/dir1') }
+    end
   end
 end
