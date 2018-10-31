@@ -3,7 +3,8 @@
 -@data_bags.each do |bag_name, data_item|
   a.button.uk-button.uk-button-default.uk-background-primary href="create?bag_path=#{params['path']}" Create file
   a.uk-button.uk-button-default.uk-background-primary uk-toggle="target: #modal-create_dir" Create dir
-  a.uk-button.uk-button-default.uk-button-danger.uk-background-secondary uk-toggle="target: #modal-delete_dir" Delete dir
+  -if params['path'].match?(/\:\/.+/)
+    a.uk-button.uk-button-default.uk-button-danger.uk-background-secondary uk-toggle="target: #modal-delete_dir" Delete dir
 
   ul.uk-breadcrumb
     li

@@ -46,6 +46,16 @@ describe 'Other' do
       it('contain "LICENSE" ') { expect(last_response.body).to include('LICENSE" target="_blank">MIT License</a>') }
       it('contain "Create"') { expect(last_response.body).to include('Create') }
       it('contain "Create dir"') { expect(last_response.body).to include('Create dir') }
+      it('contain "Delete dir"') { expect(last_response.body).not_to include('Delete dir') }
+    end
+  end
+  describe 'Sub view button' do
+    before { get '/view', **params }
+    describe 'Main' do
+      let(:params) { {path: 'main:/sub'} }
+      it('returns 200 OK') { expect(last_response).to be_ok }
+      it('contain "Create"') { expect(last_response.body).to include('Create') }
+      it('contain "Create dir"') { expect(last_response.body).to include('Create dir') }
       it('contain "Delete dir"') { expect(last_response.body).to include('Delete dir') }
     end
   end
