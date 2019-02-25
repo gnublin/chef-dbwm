@@ -53,15 +53,17 @@ class ChefDBWM < Sinatra::Application
       data_bag_name, relative_path = params[:path].split(':')
 
       redirect '/' if data_bag_name.nil?
-
-      base_path = File.realpath(@data_bag_dir[data_bag_name])
-      bags_dir[data_bag_name] = {}
-
       begin
+        base_path = File.realpath(@data_bag_dir[data_bag_name])
+        bags_dir[data_bag_name] = {}
         bag_path = File.realpath("#{base_path}#{relative_path}")
         base_diff = bag_path.gsub(base_path, '')
         base_path = base_diff == bag_path ? nil : bag_path
       rescue Errno::ENOENT
+        session[:message] = {
+          type: 'warning',
+          msg: "Path to databag #{data_bag_name} not found",
+        }
         redirect '/404'
       end
 
