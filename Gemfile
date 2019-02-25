@@ -4,7 +4,7 @@ gem 'activesupport', require: 'active_support/all'
 gem 'chef'
 gem 'hashdiff'
 
-gem "rack", ">= 2.0.6"
+gem 'rack', '>= 2.0.6'
 
 gem 'rspec', require: false
 gem 'rubocop', '0.50.0'
